@@ -1,9 +1,10 @@
-#include "LuaScriptFile.h"
+﻿#include "LuaScriptFile.h"
 
 #include <filesystem>
 #include <fstream>
 #include <cstring>
 #include "xybase/xystring.h"
+#include "SimpleString.h"
 
 std::wstring LuaScriptFile::subalphabet = L"0123456789abcdefghijklmnopqrstuvwxyz";
 std::wstring LuaScriptFile::revalphabet = L"jihgfedcba9876543210zyxwvutsrqponmlk";
@@ -24,13 +25,13 @@ LuaScriptFile::LuaScriptFile(const std::wstring &p_scriptBasePath)
 	char *buffer = new char[recordLength];
 	eye.read(buffer, recordLength);
 
-	for (int i = 0; i < recordLength; ++i)
-	{
-		buffer[i] ^= 0x73;
-	}
+	// Decrypt ( if first byte is not 0xFF, than no encryption here
+	SimpleString ss;
+	int trueLength = ss.Decrypt(buffer, recordLength, buffer, recordLength);
+	if (trueLength < 0) trueLength = recordLength;
 
 	char *cur = buffer;
-	while (cur <= buffer + length)
+	while (cur <= buffer + trueLength)
 	{
 		Actor *actor = (Actor *)cur;
 		std::u8string name{ (char8_t *)actor->name };
@@ -95,13 +96,10 @@ BinaryData LuaScriptFile::GetLuacDataByPath(const std::wstring &path)
 		throw xybase::InvalidParameterException(L"path", L"Not a valid lpd.", 107211);
 	}
 
-	BinaryData ret(&hdr->script, hdr->fileSize);
+	BinaryData ret(hdr->fileSize);
 
-	char *ptr = (char *)ret.GetData();
-	for (int i = 0; i < ret.GetLength(); ++i)
-	{
-		*ptr++ ^= 0x73;
-	}
+	SimpleString ss;
+	ss.Decrypt(hdr->script, length - 12, ret.GetData(), ret.GetLength());
 
 	delete[] contents;
 	return ret;

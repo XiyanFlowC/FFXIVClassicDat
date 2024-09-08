@@ -10,6 +10,12 @@ BinaryData::BinaryData(void *data, size_t length, bool duplicate)
 	SetData(data, length, duplicate);
 }
 
+BinaryData::BinaryData(size_t length)
+{
+    this->data = std::shared_ptr<char[]>(new char[length]);
+    this->length = length;
+}
+
 void *BinaryData::GetData() const noexcept
 {
 	return data.get();

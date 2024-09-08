@@ -20,6 +20,12 @@ public:
 	*/
 	BinaryData(void *data, size_t length, bool duplicate = true);
 
+	/**
+	 * @brief 设定空的缓冲区。
+	 * @param length 
+	 */
+	BinaryData(size_t length);
+
 	~BinaryData() {};
 
 	void *GetData() const noexcept;

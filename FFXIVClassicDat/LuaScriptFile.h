@@ -16,7 +16,8 @@ public:
 	struct SanHeader
 	{
 		char magic[4];
-		char ukn[9];
+		char ukn[8];
+		// following is Actors, maybe encrypted by simplestring
 	};
 
 	struct Actor
@@ -30,8 +31,7 @@ public:
 		char magic[4];
 		uint32_t version;
 		uint32_t fileSize;
-		char ukn;
-		char script[1];
+		char script[1]; // script data, may be encrypted by simplestring
 	};
 
 	/**
