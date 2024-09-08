@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{68701295-aae5-4634-b74d-6aec47305ad9}</ProjectGuid>
+    <RootNamespace>FFXIVClassicDat</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BinaryData.cpp" />
+    <ClCompile Include="DataManager.cpp" />
+    <ClCompile Include="FFXIVClassicDat.cpp" />
+    <ClCompile Include="LuaScriptFile.cpp" />
+    <ClCompile Include="Sheet.cpp" />
+    <ClCompile Include="SqwtDecryptUtility.cpp" />
+    <ClCompile Include="SqwtFile.cpp" />
+    <ClCompile Include="SsdData.cpp" />
+    <ClCompile Include="xybase\BinaryStream.cpp" />
+    <ClCompile Include="xybase\Exception\Exception.cpp" />
+    <ClCompile Include="xybase\Exception\InvalidOperationException.cpp" />
+    <ClCompile Include="xybase\Exception\InvalidParameterException.cpp" />
+    <ClCompile Include="xybase\Exception\IOException.cpp" />
+    <ClCompile Include="xybase\Exception\NotImplementedException.cpp" />
+    <ClCompile Include="xybase\Exception\OutOfRangeException.cpp" />
+    <ClCompile Include="xybase\Exception\RuntimeException.cpp" />
+    <ClCompile Include="xybase\FileContainer.cpp" />
+    <ClCompile Include="xybase\FileContainerBasic.cpp" />
+    <ClCompile Include="xybase\Fragment\Fragment.cpp" />
+    <ClCompile Include="xybase\Fragment\FragmentManager.cpp" />
+    <ClCompile Include="xybase\HostFsMapper.cpp" />
+    <ClCompile Include="xybase\MemoryStream.cpp" />
+    <ClCompile Include="xybase\Stream.cpp" />
+    <ClCompile Include="xybase\StreamBasic.cpp" />
+    <ClCompile Include="xybase\TextStream.cpp" />
+    <ClCompile Include="xybase\Xml\XmlNode.cpp" />
+    <ClCompile Include="xybase\xystring.cpp" />
+    <ClCompile Include="xybase\xyutils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BinaryData.h" />
+    <ClInclude Include="DataManager.h" />
+    <ClInclude Include="LuaScriptFile.h" />
+    <ClInclude Include="Sheet.h" />
+    <ClInclude Include="SqwtDecryptUtility.h" />
+    <ClInclude Include="SqwtFile.h" />
+    <ClInclude Include="SsdData.h" />
+    <ClInclude Include="xybase\BinaryStream.h" />
+    <ClInclude Include="xybase\Event.h" />
+    <ClInclude Include="xybase\Exception\Exception.h" />
+    <ClInclude Include="xybase\Exception\InvalidOperationException.h" />
+    <ClInclude Include="xybase\Exception\InvalidParameterException.h" />
+    <ClInclude Include="xybase\Exception\IOException.h" />
+    <ClInclude Include="xybase\Exception\NotImplementedException.h" />
+    <ClInclude Include="xybase\Exception\OutOfRangeException.h" />
+    <ClInclude Include="xybase\Exception\RuntimeException.h" />
+    <ClInclude Include="xybase\FileContainer.h" />
+    <ClInclude Include="xybase\FileContainerBasic.h" />
+    <ClInclude Include="xybase\Fragment\Fragment.h" />
+    <ClInclude Include="xybase\Fragment\FragmentManager.h" />
+    <ClInclude Include="xybase\HostFsMapper.h" />
+    <ClInclude Include="xybase\MemoryStream.h" />
+    <ClInclude Include="xybase\Singleton.h" />
+    <ClInclude Include="xybase\Stream.h" />
+    <ClInclude Include="xybase\StreamBasic.h" />
+    <ClInclude Include="xybase\StringBuilder.h" />
+    <ClInclude Include="xybase\TextStream.h" />
+    <ClInclude Include="xybase\Xml\XmlNode.h" />
+    <ClInclude Include="xybase\Xml\XmlParser.h" />
+    <ClInclude Include="xybase\xyapi.h" />
+    <ClInclude Include="xybase\xystring.h" />
+    <ClInclude Include="xybase\xyutils.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

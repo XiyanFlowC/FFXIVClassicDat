@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\xybase">
+      <UniqueIdentifier>{8d8fb66f-2a37-47cb-86c7-dd5182b2f7ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\xybase">
+      <UniqueIdentifier>{db5baa10-d7f4-4dd5-87f1-57060114357b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FFXIVClassicDat.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\BinaryStream.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\Exception.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\FileContainer.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\FileContainerBasic.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Fragment\Fragment.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Fragment\FragmentManager.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\HostFsMapper.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\InvalidOperationException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\InvalidParameterException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\IOException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\MemoryStream.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\NotImplementedException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\OutOfRangeException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Exception\RuntimeException.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Stream.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\StreamBasic.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\TextStream.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\Xml\XmlNode.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\xystring.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="xybase\xyutils.cpp">
+      <Filter>源文件\xybase</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BinaryData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SsdData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sheet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SqwtFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SqwtDecryptUtility.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaScriptFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="xybase\BinaryStream.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Event.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\Exception.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\FileContainer.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\FileContainerBasic.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Fragment\Fragment.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Fragment\FragmentManager.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\HostFsMapper.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\InvalidOperationException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\InvalidParameterException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\IOException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\MemoryStream.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\NotImplementedException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\OutOfRangeException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Exception\RuntimeException.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Singleton.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Stream.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\StreamBasic.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\StringBuilder.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\TextStream.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Xml\XmlNode.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\Xml\XmlParser.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\xyapi.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\xystring.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="xybase\xyutils.h">
+      <Filter>头文件\xybase</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SsdData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sheet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SqwtFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SqwtDecryptUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaScriptFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
