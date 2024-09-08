@@ -18,6 +18,16 @@ public:
 	 */
 	int Decrypt(void *src, int srcLeng, void *dst, int dstLeng);
 
+	/**
+	 * @brief 加密
+	 * @param src 
+	 * @param srcLeng 
+	 * @param dst 
+	 * @param dstLeng 
+	 * @return 
+	 */
+	int Encrypt(void *src, int srcLeng, void *dst, int dstLeng);
+
 protected:
 	void Shuffle(void *dst, int length);
 
