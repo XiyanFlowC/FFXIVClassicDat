@@ -22,7 +22,7 @@ public:
 
 	~BinaryData() {};
 
-	const void *GetData() const noexcept;
+	void *GetData() const noexcept;
 
 	size_t GetLength() const noexcept;
 

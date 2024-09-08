@@ -17,6 +17,7 @@ int main()
     // Boot   0x27950000   client\\sqwt\\boot\\
     // FFXIV  0x01030000   client\\sqwt\\ 
     SsdData bootSsd(0x27950000);
+    SsdData mainSsd(0x01030000);
     std::wstring SQWT_BASE_PATH = FFXIV_INSTALL_PATH + L"\\client\\sqwt\\boot";
 
     SqwtFile candidateList(SQWT_BASE_PATH + L"\\system\\ime\\CandidateList.form");

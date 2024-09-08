@@ -116,5 +116,5 @@ BinaryData LuaScriptFile::GetLuacDataByName(const std::u8string &actorName)
 
 BinaryData LuaScriptFile::GetLuacDataByActorId(uint32_t id)
 {
-	GetLuacDataByName(actors.find(id)->second);
+	return GetLuacDataByName(actors.find(id)->second);
 }

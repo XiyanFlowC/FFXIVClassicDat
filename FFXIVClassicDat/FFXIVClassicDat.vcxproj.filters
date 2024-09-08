@@ -105,6 +105,9 @@
     <ClCompile Include="LuaScriptFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ShuffleString.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xybase\BinaryStream.h">
@@ -201,6 +204,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LuaScriptFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ShuffleString.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

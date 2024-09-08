@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
 #include "BinaryData.h"
@@ -22,7 +22,7 @@ public:
 	struct Actor
 	{
 		uint32_t id;
-		char name[1]; // ±êÖ¾ÓÃ£¬³¤¶È±ä»¯
+		char name[1]; // æ ‡å¿—ç”¨ï¼Œé•¿åº¦å˜åŒ–
 	};
 
 	struct LpdHeader
@@ -35,8 +35,8 @@ public:
 	};
 
 	/**
-	 * @brief ³õÊ¼»¯½Å±¾·ÃÎÊ¹¤¾ß¡£Ğè¸ø³ö½Å±¾»ù±¾Â·¾¶¡£Â·¾¶ÏÂĞèÒªÃèÊö½Å±¾¶ÔÓ¦¹ØÏµµÄ
-	 * staticactor.san´æÔÚ²Å¿ÉÕı³£ÔË×÷¡£
+	 * @brief åˆå§‹åŒ–è„šæœ¬è®¿é—®å·¥å…·ã€‚éœ€ç»™å‡ºè„šæœ¬åŸºæœ¬è·¯å¾„ã€‚è·¯å¾„ä¸‹éœ€è¦æè¿°è„šæœ¬å¯¹åº”å…³ç³»çš„
+	 * staticactor.sanå­˜åœ¨æ‰å¯æ­£å¸¸è¿ä½œã€‚
 	 */
 	LuaScriptFile(const std::wstring &p_scriptBasePath);
 
@@ -44,30 +44,30 @@ public:
 	BinaryData GetLuacDataByPath(const std::wstring &path);
 
 	/**
-	 * @brief ¸ù¾İ¸ø³öµÄActorÃû£¬²éÑ¯staticactor£¬¼ÓÃÜÂ·¾¶ºó»ñÈ¡Êµ¼ÊÎÄ¼ş¡£½øĞĞ½âÃÜºó£¬·µ»ØÃ÷ÎÄµÄÂãLuac´úÂë¡£
-	 * ¿ÉÊ¹ÓÃUnluacµÈ½øÒ»²½´¦Àí
+	 * @brief æ ¹æ®ç»™å‡ºçš„Actoråï¼ŒæŸ¥è¯¢staticactorï¼ŒåŠ å¯†è·¯å¾„åè·å–å®é™…æ–‡ä»¶ã€‚è¿›è¡Œè§£å¯†åï¼Œè¿”å›æ˜æ–‡çš„è£¸Luacä»£ç ã€‚
+	 * å¯ä½¿ç”¨Unluacç­‰è¿›ä¸€æ­¥å¤„ç†
 	 */
 	BinaryData GetLuacDataByName(const std::u8string &actorName);
 
 	/**
-	 * @brief Ê¹ÓÃActorId»ñÈ¡ÎÄ¼ş
-	 * @note ¸ÃActorIdºÍÓÎÏ·ÄÚ²¿Id¶ÔÓ¦¹ØÏµÎ´È·ÈÏ
+	 * @brief ä½¿ç”¨ActorIdè·å–æ–‡ä»¶
+	 * @note è¯¥ActorIdå’Œæ¸¸æˆå†…éƒ¨Idå¯¹åº”å…³ç³»æœªç¡®è®¤
 	 * @param id 
 	 * @return 
 	 */
 	BinaryData GetLuacDataByActorId(uint32_t id);
 
 	/**
-	 * @brief ½âÃÜ½Å±¾ÎÄ¼şÃû¡££¨¼òµ¥µÄ´úÌæÃÜÂë
-	 * @param p_fileName ÎÄ¼şÃûÃÜÎÄ
-	 * @return ÎÄ¼şÃûÃ÷ÎÄ
+	 * @brief è§£å¯†è„šæœ¬æ–‡ä»¶åã€‚ï¼ˆç®€å•çš„ä»£æ›¿å¯†ç 
+	 * @param p_fileName æ–‡ä»¶åå¯†æ–‡
+	 * @return æ–‡ä»¶åæ˜æ–‡
 	 */
 	static std::wstring FileNameDecipher(std::wstring_view p_fileName);
 
 	/**
-	 * @brief ¶Ô½Å±¾ÎÄ¼şÃû½øĞĞ¼ÓÃÜ
-	 * @param p_fileName ÎÄ¼şÃûÃ÷ÎÄ
-	 * @return ÎÄ¼şÃûÃÜÎÄ
+	 * @brief å¯¹è„šæœ¬æ–‡ä»¶åè¿›è¡ŒåŠ å¯†
+	 * @param p_fileName æ–‡ä»¶åæ˜æ–‡
+	 * @return æ–‡ä»¶åå¯†æ–‡
 	 */
 	static std::wstring FileNameCipher(std::wstring_view p_fileName);
 };

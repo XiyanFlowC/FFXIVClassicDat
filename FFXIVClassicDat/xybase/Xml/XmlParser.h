@@ -39,7 +39,7 @@ namespace xybase
         private:
             XmlNodeT ParseNode(const std::basic_string<Ch> &xml);
             void ProcessPreContents(const std::basic_string<Ch> &xml);
-            static std::basic_string<Ch> ProcessString(const std::basic_string_view<Ch> str);
+            std::basic_string<Ch> ProcessString(const std::basic_string_view<Ch> str);
 
             size_t index;
 
@@ -134,7 +134,7 @@ namespace xybase
                 {
                     // 处理转义序列
                     size_t escapeStart = cur + 1;
-                    cur = xml.find(';', cur);
+                    cur = str.find(';', cur);
                     std::basic_string_view<Ch> seq = str.substr(escapeStart, cur - escapeStart);
                     if (seq[0] == '#')
                     {
@@ -142,15 +142,15 @@ namespace xybase
                         // 处理直接值
                         if (seq[1] == 'x')
                         {
-                            codepoint = static_cast<long>(xybase::string::stoi(seq.substr(2), 16));
+                            codepoint = static_cast<long>(xybase::string::stoi<Ch>(std::basic_string<Ch>{ seq.substr(2) }, 16));
                         }
                         else
                         {
-                            codepoint = static_cast<long>(xybase::string::stoi(seq.substr(1)));
+                            codepoint = static_cast<long>(xybase::string::stoi<Ch>(std::basic_string<Ch>{ seq.substr(1) }));
                         }
                         sb += xybase::string::to_enc<Ch, char32_t>(xybase::string::to_utf32(codepoint));
                     }
-                    else sb += entities[seq];
+                    else sb += entities[std::basic_string<Ch>(seq)];
                 }
                 ++cur;
             }

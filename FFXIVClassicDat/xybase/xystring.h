@@ -267,6 +267,7 @@ namespace xybase
 					sb += ori;
 				}
 			}
+			return sb.ToString();
 		}
 
 		/**

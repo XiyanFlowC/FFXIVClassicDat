@@ -10,7 +10,7 @@ BinaryData::BinaryData(void *data, size_t length, bool duplicate)
 	SetData(data, length, duplicate);
 }
 
-const void *BinaryData::GetData() const noexcept
+void *BinaryData::GetData() const noexcept
 {
 	return data.get();
 }

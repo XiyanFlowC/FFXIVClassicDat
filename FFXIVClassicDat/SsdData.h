@@ -22,6 +22,8 @@ public:
 private:
 	void ParseRaptureSsdData();
 
+	void ParseRaptureSsdData(const char8_t *xml, int length);
+
 	std::map<std::u8string, Sheet *> m_sheets;
 	uint32_t m_fileId;
 	// uint8_t m_isSheetsParsed : 1 = 0;
