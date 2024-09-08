@@ -25,7 +25,7 @@ int ShuffleString::Decrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 	Shuffle(p_dst, srcLeng - 1);
 	uint16_t a, b;
 	GetFactors(srcLeng - 1, &a, &b);
-	char *cur = (char *)p_dst, *end = ((char *)p_dst) + srcLeng;
+	char *cur = (char *)p_dst, *end = ((char *)p_dst) + srcLeng - 1;
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= a;
@@ -111,5 +111,5 @@ void ShuffleString::Shuffle(void *dst, int length)
 void ShuffleString::GetFactors(int16_t key, uint16_t *a, uint16_t *b)
 {
 	*a = 7 * key;
-	*b = ~(uint16_t)(((uint16_t)(7 * key) + 1) >> (((uint8_t)(7 * key) / 3) & 3));
+	*b = ~(uint16_t)(((uint16_t)(7 * key) + 1) >> ((7 * key / 3) & 3));
 }
