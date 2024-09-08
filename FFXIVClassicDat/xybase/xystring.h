@@ -341,6 +341,20 @@ namespace xybase
 			return ret;
 		}
 
+		/**
+		 * @brief Parse integer
+		 * @tparam T 
+		 * @param str 
+		 * @param base 
+		 * @return 
+		 */
+		template<typename T = char>
+		long long pint(const std::basic_string<T> &str, int base = 10)
+		{
+			long long ret = str[0] == '-' ? -1 : 1;
+			return ret * stoi<T>(str[0] == '-' ? str.substr(1) : str);
+		}
+
 		template<typename T = char>
 		std::basic_string<T> itos(unsigned long long value, int base = 10)
 		{

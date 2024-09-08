@@ -138,6 +138,7 @@
     <ClCompile Include="LuaScriptFile.cpp" />
     <ClCompile Include="Sheet.cpp" />
     <ClCompile Include="ShuffleString.cpp" />
+    <ClCompile Include="SimpleString.cpp" />
     <ClCompile Include="SqwtDecryptUtility.cpp" />
     <ClCompile Include="SqwtFile.cpp" />
     <ClCompile Include="SsdData.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="LuaScriptFile.h" />
     <ClInclude Include="Sheet.h" />
     <ClInclude Include="ShuffleString.h" />
+    <ClInclude Include="SimpleString.h" />
     <ClInclude Include="SqwtDecryptUtility.h" />
     <ClInclude Include="SqwtFile.h" />
     <ClInclude Include="SsdData.h" />

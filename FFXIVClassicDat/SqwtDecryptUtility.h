@@ -3,8 +3,8 @@
 #include <cstdint>
 
 /**
- * @brief 解密函数，从逆向结果恩抄的
- * 2024/9/8 喵的是BlowFish
+ * @brief 解密，从逆向结果恩抄的
+ * 2024/9/8 喵的是BlowFish - 重构，重命名很花时间，所以只要知道这个实际上是BlowFish的标准实现就好了。
  */
 class SqwtDecryptUtility
 {

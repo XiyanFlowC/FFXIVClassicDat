@@ -19,6 +19,7 @@ namespace xybase
 
         /**
          * @brief 处理Xml的类。可处理标准的XML，但是这里处理的是XML的一种方言。默认去除所有文本首尾的空白字符。文本中间的空白字符将保持原样。
+         * @note 并没有进行越界判断等设计。可能存在漏洞。仅应用于解析确认安全的XML文档。
          * @tparam XmlNodeT Xml节点类型
          * @tparam Ch Xml文本流字符类型
         */
@@ -34,7 +35,7 @@ namespace xybase
 
             std::string error;
 
-            bool elimateBlank = true;
+            bool eliminateBlank = true;
 
         private:
             XmlNodeT ParseNode(const std::basic_string<Ch> &xml);
@@ -215,7 +216,7 @@ namespace xybase
                 while (index < xml.size())
                 {
                     // 去除空白字符
-                    if (elimateBlank)
+                    if (eliminateBlank)
                         index = xml.find_first_not_of(EMPTY_CHARS, index);
 
                     // 是标签节点，处理标签节点
@@ -279,7 +280,7 @@ namespace xybase
                                 index++;
                             }
                             // 空白字符去尾
-                            else if (elimateBlank && (xml[index] == ' ' || xml[index] == '\t' || xml[index] == '\r' || xml[index] == '\n'))
+                            else if (eliminateBlank && (xml[index] == ' ' || xml[index] == '\t' || xml[index] == '\r' || xml[index] == '\n'))
                             {
                                 size_t endOfBlank = xml.find_first_not_of(EMPTY_CHARS, index);
                                 // 去尾，立即返回

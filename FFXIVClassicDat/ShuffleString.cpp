@@ -1,6 +1,7 @@
 ﻿#include "ShuffleString.h"
 
 #include <cstring>
+#include <assert.h>
 
 int ShuffleString::Decrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 {
@@ -22,25 +23,30 @@ int ShuffleString::Decrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 	}
 	if (p_src != p_dst)
 		memcpy(p_dst, p_src, srcLeng - 1);
+
 	Shuffle(p_dst, srcLeng - 1);
 	uint16_t a, b;
 	GetFactors(srcLeng - 1, &a, &b);
 	char *cur = (char *)p_dst, *end = ((char *)p_dst) + srcLeng - 1;
+	
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= a;
 		cur += 4;
 	}
+
 	cur = ((char *)p_dst) + 2;
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= b;
 		cur += 4;
 	}
+
 	if ((srcLeng - 1) & 1)
 	{
 		*(end - 1) ^= (uint8_t)(b & 0xFF);
 	}
+
 	return srcLeng - 1;
 }
 
@@ -72,6 +78,7 @@ int ShuffleString::Encrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 	GetFactors(srcLeng, &a, &b);
 
 	char *cur = (char *)p_dst + 2, *end = (char *)p_dst + srcLeng;
+		
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= b;
@@ -83,6 +90,11 @@ int ShuffleString::Encrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 	{
 		*((uint16_t *)cur) ^= a;
 		cur += 4;
+	}
+
+	if (srcLeng & 1)
+	{
+		*(end - 1) ^= (uint8_t)(b & 0xFF);
 	}
 
 	// 混淆
@@ -111,5 +123,5 @@ void ShuffleString::Shuffle(void *dst, int length)
 void ShuffleString::GetFactors(int16_t key, uint16_t *a, uint16_t *b)
 {
 	*a = 7 * key;
-	*b = ~(uint16_t)(((uint16_t)(7 * key) + 1) >> ((7 * key / 3) & 3));
+	*b = ~(uint16_t)(((*a) + 1) >> (((*a) / 3) & 3));
 }

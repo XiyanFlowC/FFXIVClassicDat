@@ -6,18 +6,40 @@
 #include "SsdData.h"
 #include "DataManager.h"
 #include "SqwtFile.h"
+#include "xybase/xystring.h"
 
 int main()
 {
     const std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
     DataManager::GetInstance().m_basePath = FFXIV_INSTALL_PATH + L"\\data";
+    const std::u8string LANG = u8"ja"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
 
     // Sqex Sqwt 分析管理器根据程序不同自动切换？
     // 程序      Ssd          初始化的sqwt基路径
     // Boot   0x27950000   client\\sqwt\\boot\\
-    // FFXIV  0x01030000   client\\sqwt\\ 
-    SsdData bootSsd(0x27950000);
-    SsdData mainSsd(0x01030000);
+    // Game   0x01030000   client\\sqwt\\ 
+    SsdData bootSsd(0x27950000, LANG);
+    SsdData gameSsd(0x01030000, LANG);
+
+    std::cout << "ffxivboot.exe SSD" << std::endl;
+    for (auto &&entry : bootSsd.GetAllSheets())
+    {
+        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
+    }
+    std::cout << "ffxivgame.exe SSD" << std::endl;
+    for (auto &&entry : gameSsd.GetAllSheets())
+    {
+        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
+    }
+
+
+    SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
+    std::cout << "debug SSD" << std::endl;
+    for (auto &&entry : debugSsd.GetAllSheets())
+    {
+        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
+    }
+
     std::wstring SQWT_BASE_PATH = FFXIV_INSTALL_PATH + L"\\client\\sqwt\\boot";
 
     SqwtFile candidateList(SQWT_BASE_PATH + L"\\system\\ime\\CandidateList.form");

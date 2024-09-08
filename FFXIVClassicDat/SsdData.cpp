@@ -3,14 +3,14 @@
 #include "xybase/Exception/InvalidOperationException.h"
 
 SsdData::SsdData()
-	: m_fileId(-1)
+	: m_fileId(-1), m_language(u8"ja")
 {
 }
 
-SsdData::SsdData(uint32_t p_fileId)
-	: m_fileId(p_fileId)
+SsdData::SsdData(uint32_t p_fileId, const std::u8string &p_language)
+	: m_fileId(p_fileId), m_language(p_language)
 {
-	ParseRaptureSsdData();
+	ParseRaptureSsdData(m_fileId);
 }
 
 SsdData::~SsdData()
@@ -48,11 +48,21 @@ void SsdData::AppendSheetDetermined(const std::u8string &sheetName, Sheet *sheet
 	m_isModified = 1;
 }
 
+std::list<Sheet *> SsdData::GetAllSheets() const
+{
+	std::list<Sheet *> ret;
+	for (auto &&pair : m_sheets)
+	{
+		ret.push_back(pair.second);
+	}
+	return ret;
+}
+
 #include "ShuffleString.h"
 
-void SsdData::ParseRaptureSsdData()
+void SsdData::ParseRaptureSsdData(uint32_t id)
 {
-	auto data = DataManager::GetInstance().LoadData(m_fileId);
+	auto data = DataManager::GetInstance().LoadData(id);
 
 	// ShuffleString
 	ShuffleString ss;
@@ -75,6 +85,11 @@ void SsdData::ParseRaptureSsdData()
 #include "xybase/Xml/XmlNode.h"
 #include "xybase/Xml/XmlParser.h"
 
+void ParseSheetTag(Sheet *target, xybase::xml::XmlNode node)
+{
+
+}
+
 void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 {
 	xybase::xml::XmlParser<xybase::xml::XmlNode, char8_t> parser{};
@@ -88,10 +103,28 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 		if (child.GetName() == u"sheet")
 		{
 			std::u8string name = xybase::string::to_utf8(child.GetAttribute(u"name"));
-			uint32_t infofile = xybase::string::stoi<char16_t>(child.GetAttribute(u"infofile"));
+			std::u16string infoFile = child.GetAttribute(u"infofile");
+			// 引用其他的文件
+			if (infoFile != u"")
+			{
+				ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
+			}
 
-			Sheet *sheet = new Sheet(infofile);
-			m_sheets[name] = sheet;
+			// 非引用，解析数据
+			std::u8string mode = xybase::string::to_utf8(child.GetAttribute(u"mode"));
+			int columnMax = xybase::string::pint<char16_t>(child.GetAttribute(u"column_max"));
+			int columnCount = xybase::string::pint<char16_t>(child.GetAttribute(u"column_count"));
+			int cache = xybase::string::pint<char16_t>(child.GetAttribute(u"cache"));
+			std::u8string type = xybase::string::to_utf8(child.GetAttribute(u"type"));
+			std::u8string lang = xybase::string::to_utf8(child.GetAttribute(u"lang"));
+
+			// 该表是当前指定的语言的表
+			if (lang == m_language || lang == u8"")
+			{
+				Sheet *sheet = new Sheet(name, columnMax, columnCount, cache);
+				m_sheets[name] = sheet;
+			}
+			// 否则，忽略此记录
 		}
 		else
 			throw xybase::InvalidParameterException(L"xml", L"Unsupported ssd definition.", 458001);

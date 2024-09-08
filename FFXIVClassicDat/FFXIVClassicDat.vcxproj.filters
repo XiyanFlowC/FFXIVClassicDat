@@ -19,6 +19,12 @@
     <Filter Include="源文件\xybase">
       <UniqueIdentifier>{db5baa10-d7f4-4dd5-87f1-57060114357b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\crypto">
+      <UniqueIdentifier>{48e05a3e-3eaf-4693-ad15-e94eef1b0dec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\crypto">
+      <UniqueIdentifier>{f472ae26-268e-4322-8f14-97bb9cc07d15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FFXIVClassicDat.cpp">
@@ -99,14 +105,17 @@
     <ClCompile Include="SqwtFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SqwtDecryptUtility.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="LuaScriptFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ShuffleString.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleString.cpp">
+      <Filter>源文件\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="SqwtDecryptUtility.cpp">
+      <Filter>源文件\crypto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,14 +209,17 @@
     <ClInclude Include="SqwtFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SqwtDecryptUtility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="LuaScriptFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleString.h">
+      <Filter>头文件\crypto</Filter>
+    </ClInclude>
     <ClInclude Include="ShuffleString.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="SqwtDecryptUtility.h">
+      <Filter>头文件\crypto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
