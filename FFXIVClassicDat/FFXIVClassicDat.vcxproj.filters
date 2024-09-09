@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FFXIVClassicDat.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="xybase\BinaryStream.cpp">
       <Filter>源文件\xybase</Filter>
     </ClCompile>

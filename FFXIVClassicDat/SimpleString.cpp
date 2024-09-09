@@ -1,10 +1,10 @@
-#include "SimpleString.h"
+ï»¿#include "SimpleString.h"
 
 int SimpleString::Decrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng)
 {
 	char *src = (char *)p_src;
 	char *dst = (char *)p_dst;
-	// ×î¿ªÊ¼²»ÊÇ0xFF£¬²»ÊÇ¼òµ¥×Ö·û´®ÃÜÎÄ
+	// æœ€å¼€å§‹ä¸æ˜¯0xFFï¼Œä¸æ˜¯ç®€å•å­—ç¬¦ä¸²å¯†æ–‡
 	if (!p_src || *src != 0xFF)
 	{
 		return -1;
@@ -14,7 +14,7 @@ int SimpleString::Decrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng
 		return -2;
 	}
 	char *end = src + p_srcLeng;
-	// Ìø¹ı×î¿ªÊ¼µÄ±êÖ¾ 0xFF
+	// è·³è¿‡æœ€å¼€å§‹çš„æ ‡å¿— 0xFF
 	++src;
 	while (src < end)
 	{
@@ -27,7 +27,7 @@ int SimpleString::Encrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng
 {
 	char *src = (char *)p_src;
 	char *dst = (char *)p_dst;
-	// ×î¿ªÊ¼ÊÇ0xFF£¬ÒÑÊÇ¼òµ¥×Ö·û´®ÃÜÎÄ
+	// æœ€å¼€å§‹æ˜¯0xFFï¼Œå·²æ˜¯ç®€å•å­—ç¬¦ä¸²å¯†æ–‡
 	if (!p_src || *src == 0xFF)
 	{
 		return -1;
@@ -41,7 +41,7 @@ int SimpleString::Encrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng
 		return -3;
 	}
 	char *end = src + p_srcLeng;
-	// Ğ´Èë±êÖ¾
+	// å†™å…¥æ ‡å¿—
 	*dst++ = 0xFF;
 	while (src < end)
 	{

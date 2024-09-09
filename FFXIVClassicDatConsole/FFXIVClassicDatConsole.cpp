@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <string>
 
 #include "SsdData.h"
 #include "DataManager.h"

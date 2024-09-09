@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <map>
 
 /**
  * @brief Sheet 是存储在data种的一类dat。这里是infofile的解析。
@@ -17,18 +18,33 @@ public:
 
 	class Schema
 	{
+	public:
 		enum class DataType
 		{
-			SDT_INT8,
-			SDT_INT16,
-			SDT_INT32,
-			SDT_INT64,
-			SDT_UINT8,
-			SDT_UINT16,
-			SDT_UINT32,
-			SDT_UINT64,
-			SDT_
+			SDT_INVALID,
+			SDT_S8,
+			SDT_U8,
+			SDT_S16,
+			SDT_U16,
+			SDT_S32,
+			SDT_U32,
+			SDT_BOOL,
+			SDT_F16,
+			SDT_F32,
+			SDT_STR,
+			SDT_MAX
 		};
+
+		Schema();
+
+		void SetType(int p_index, const char8_t *p_type);
+
+		void RemoveType(int p_index);
+
+		DataType QueryType(int p_index);
+
+	private:
+		std::map<int, DataType> m_schema;
 	};
 
 protected:

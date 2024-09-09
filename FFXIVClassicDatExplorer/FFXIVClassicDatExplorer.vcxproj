@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{68701295-aae5-4634-b74d-6aec47305ad9}</ProjectGuid>
-    <RootNamespace>FFXIVClassicDat</RootNamespace>
+    <ProjectGuid>{21807ac9-6086-41f4-85e2-91d89e97a3e6}</ProjectGuid>
+    <RootNamespace>FFXIVClassicDatExplorer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -40,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -74,11 +74,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -88,11 +88,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -102,15 +102,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\FFXIVClassicDat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\x64\Debug\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FFXIVClassicDat.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,84 +120,35 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <AdditionalIncludeDirectories>..\FFXIVClassicDat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\x64\Release\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FFXIVClassicDat.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BinaryData.cpp" />
-    <ClCompile Include="DataManager.cpp" />
-    <ClCompile Include="LuaScriptFile.cpp" />
-    <ClCompile Include="Sheet.cpp" />
-    <ClCompile Include="ShuffleString.cpp" />
-    <ClCompile Include="SimpleString.cpp" />
-    <ClCompile Include="SqwtDecryptUtility.cpp" />
-    <ClCompile Include="SqwtFile.cpp" />
-    <ClCompile Include="SsdData.cpp" />
-    <ClCompile Include="xybase\BinaryStream.cpp" />
-    <ClCompile Include="xybase\Exception\Exception.cpp" />
-    <ClCompile Include="xybase\Exception\InvalidOperationException.cpp" />
-    <ClCompile Include="xybase\Exception\InvalidParameterException.cpp" />
-    <ClCompile Include="xybase\Exception\IOException.cpp" />
-    <ClCompile Include="xybase\Exception\NotImplementedException.cpp" />
-    <ClCompile Include="xybase\Exception\OutOfRangeException.cpp" />
-    <ClCompile Include="xybase\Exception\RuntimeException.cpp" />
-    <ClCompile Include="xybase\FileContainer.cpp" />
-    <ClCompile Include="xybase\FileContainerBasic.cpp" />
-    <ClCompile Include="xybase\Fragment\Fragment.cpp" />
-    <ClCompile Include="xybase\Fragment\FragmentManager.cpp" />
-    <ClCompile Include="xybase\HostFsMapper.cpp" />
-    <ClCompile Include="xybase\MemoryStream.cpp" />
-    <ClCompile Include="xybase\Stream.cpp" />
-    <ClCompile Include="xybase\StreamBasic.cpp" />
-    <ClCompile Include="xybase\TextStream.cpp" />
-    <ClCompile Include="xybase\Xml\XmlNode.cpp" />
-    <ClCompile Include="xybase\xystring.cpp" />
-    <ClCompile Include="xybase\xyutils.cpp" />
+    <ClInclude Include="FFXIVClassicDatExplorer.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BinaryData.h" />
-    <ClInclude Include="DataManager.h" />
-    <ClInclude Include="LuaScriptFile.h" />
-    <ClInclude Include="Sheet.h" />
-    <ClInclude Include="ShuffleString.h" />
-    <ClInclude Include="SimpleString.h" />
-    <ClInclude Include="SqwtDecryptUtility.h" />
-    <ClInclude Include="SqwtFile.h" />
-    <ClInclude Include="SsdData.h" />
-    <ClInclude Include="xybase\BinaryStream.h" />
-    <ClInclude Include="xybase\Event.h" />
-    <ClInclude Include="xybase\Exception\Exception.h" />
-    <ClInclude Include="xybase\Exception\InvalidOperationException.h" />
-    <ClInclude Include="xybase\Exception\InvalidParameterException.h" />
-    <ClInclude Include="xybase\Exception\IOException.h" />
-    <ClInclude Include="xybase\Exception\NotImplementedException.h" />
-    <ClInclude Include="xybase\Exception\OutOfRangeException.h" />
-    <ClInclude Include="xybase\Exception\RuntimeException.h" />
-    <ClInclude Include="xybase\FileContainer.h" />
-    <ClInclude Include="xybase\FileContainerBasic.h" />
-    <ClInclude Include="xybase\Fragment\Fragment.h" />
-    <ClInclude Include="xybase\Fragment\FragmentManager.h" />
-    <ClInclude Include="xybase\HostFsMapper.h" />
-    <ClInclude Include="xybase\MemoryStream.h" />
-    <ClInclude Include="xybase\Singleton.h" />
-    <ClInclude Include="xybase\Stream.h" />
-    <ClInclude Include="xybase\StreamBasic.h" />
-    <ClInclude Include="xybase\StringBuilder.h" />
-    <ClInclude Include="xybase\TextStream.h" />
-    <ClInclude Include="xybase\Xml\XmlNode.h" />
-    <ClInclude Include="xybase\Xml\XmlParser.h" />
-    <ClInclude Include="xybase\xyapi.h" />
-    <ClInclude Include="xybase\xystring.h" />
-    <ClInclude Include="xybase\xyutils.h" />
+    <ClCompile Include="FFXIVClassicDatExplorer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FFXIVClassicDatExplorer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="FFXIVClassicDatExplorer.ico" />
+    <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

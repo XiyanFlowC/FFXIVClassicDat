@@ -1,4 +1,4 @@
-#include "SqwtDecryptUtility.h"
+ï»¿#include "SqwtDecryptUtility.h"
 
 #include <cstring>
 
@@ -66,7 +66,7 @@ SqwtDecryptUtility *SqwtDecryptUtility::MakeKey(const char *key, int keyLength)
     memcpy(sbox, SqwtKeyStore::sbox, 0x1000);
     memcpy(pbox, SqwtKeyStore::pbox, 72);
 
-    // ×ÓÃÜÔ¿Éú³É
+    // å­å¯†é’¥ç”Ÿæˆ
     int idx = 0;
     for (int i = 0; i < 18; ++i)
     {
@@ -106,9 +106,9 @@ SqwtDecryptUtility *SqwtDecryptUtility::MakeKey(const char *key, int keyLength)
     return this;
 }
 
-// ºÃÁËÏÖÔÚÎÒÖªµÀÕâÍæÒâÊÇÊ²Ã´ÁË
-// µ«ÊÇÖØĞÂĞ´Ò»±éÍ¦Âé·³µÄ
-// ËùÒÔ¾ÍÕâÑù°É£¬·´ÕıÄÜÅÜ
+// å¥½äº†ç°åœ¨æˆ‘çŸ¥é“è¿™ç©æ„æ˜¯ä»€ä¹ˆäº†
+// ä½†æ˜¯é‡æ–°å†™ä¸€éæŒºéº»çƒ¦çš„
+// æ‰€ä»¥å°±è¿™æ ·å§ï¼Œåæ­£èƒ½è·‘
 uint8_t SqwtDecryptUtility::SqwtKeyStore::sbox[] = {
     0xA6, 0xB, 0x31, 0xD1, 0xAC, 0xB5, 0xDF, 0x98, 0xDB, 0x72, 0xFD, 0x2F, 0xB7, 0xDF, 0x1A, 0xD0,
     0xED, 0xAF, 0xE1, 0xB8, 0x96, 0x7E, 0x26, 0x6A, 0x45, 0x90, 0x7C, 0xBA, 0x99, 0x7F, 0x2C, 0xF1,

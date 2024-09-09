@@ -1,4 +1,4 @@
-#include "SsdData.h"
+ï»¿#include "SsdData.h"
 #include "DataManager.h"
 #include "xybase/Exception/InvalidOperationException.h"
 
@@ -104,13 +104,13 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 		{
 			std::u8string name = xybase::string::to_utf8(child.GetAttribute(u"name"));
 			std::u16string infoFile = child.GetAttribute(u"infofile");
-			// ÒıÓÃÆäËûµÄÎÄ¼ş
+			// å¼•ç”¨å…¶ä»–çš„æ–‡ä»¶
 			if (infoFile != u"")
 			{
 				ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
 			}
 
-			// ·ÇÒıÓÃ£¬½âÎöÊı¾İ
+			// éå¼•ç”¨ï¼Œè§£ææ•°æ®
 			std::u8string mode = xybase::string::to_utf8(child.GetAttribute(u"mode"));
 			int columnMax = xybase::string::pint<char16_t>(child.GetAttribute(u"column_max"));
 			int columnCount = xybase::string::pint<char16_t>(child.GetAttribute(u"column_count"));
@@ -118,13 +118,13 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 			std::u8string type = xybase::string::to_utf8(child.GetAttribute(u"type"));
 			std::u8string lang = xybase::string::to_utf8(child.GetAttribute(u"lang"));
 
-			// ¸Ã±íÊÇµ±Ç°Ö¸¶¨µÄÓïÑÔµÄ±í
+			// è¯¥è¡¨æ˜¯å½“å‰æŒ‡å®šçš„è¯­è¨€çš„è¡¨
 			if (lang == m_language || lang == u8"")
 			{
 				Sheet *sheet = new Sheet(name, columnMax, columnCount, cache);
 				m_sheets[name] = sheet;
 			}
-			// ·ñÔò£¬ºöÂÔ´Ë¼ÇÂ¼
+			// å¦åˆ™ï¼Œå¿½ç•¥æ­¤è®°å½•
 		}
 		else
 			throw xybase::InvalidParameterException(L"xml", L"Unsupported ssd definition.", 458001);
