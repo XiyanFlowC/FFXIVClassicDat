@@ -25,6 +25,15 @@ BinaryData DataManager::LoadData(uint32_t p_id)
 	return BinaryData(buffer, fileSize, false);
 }
 
+xybase::BinaryStream *DataManager::NewDataStream(uint32_t p_id, const wchar_t *p_mode)
+{
+	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);
+
+	if (!std::filesystem::exists(path)) throw xybase::InvalidParameterException(L"p_id", L"Specified file not found.", 87700);
+
+	return new xybase::BinaryStream(path, p_mode);
+}
+
 void DataManager::SaveData(uint32_t p_id, const BinaryData &p_data)
 {
 	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);

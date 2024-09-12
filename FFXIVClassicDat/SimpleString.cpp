@@ -42,7 +42,7 @@ int SimpleString::Encrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng
 	}
 	char *end = src + p_srcLeng;
 	// 写入标志
-	*dst++ = 0xFF;
+	*dst++ = (char)0xFF;
 	while (src < end)
 	{
 		*dst++ = *src++ ^ 0x75;

@@ -13,7 +13,7 @@ int main()
 {
     const std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
     DataManager::GetInstance().m_basePath = FFXIV_INSTALL_PATH + L"\\data";
-    const std::u8string LANG = u8"ja"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
+    const std::u8string LANG = u8"chs"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
 
     // Sqex Sqwt 分析管理器根据程序不同自动切换？
     // 程序      Ssd          初始化的sqwt基路径
@@ -32,7 +32,6 @@ int main()
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
     }
-
 
     SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
     std::cout << "debug SSD" << std::endl;
