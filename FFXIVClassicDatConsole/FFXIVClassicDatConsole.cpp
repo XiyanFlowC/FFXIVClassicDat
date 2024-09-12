@@ -9,6 +9,7 @@
 #include "SsdData.h"
 #include "DataManager.h"
 #include "SqwtFile.h"
+#include "Sheet.h"
 #include "xybase/xystring.h"
 
 int main()
@@ -36,7 +37,7 @@ int main()
     }
 
     std::cout << "ffxivgame.exe SSD" << std::endl;
-    std::filesystem::path ent = exportBase / "ffxivgame" / LANG;
+    ent = exportBase / "ffxivgame" / LANG;
     for (auto &&entry : gameSsd.GetAllSheets())
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
@@ -44,7 +45,7 @@ int main()
 
     SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
     std::cout << "debug SSD" << std::endl;
-    std::filesystem::path ent = exportBase / "debug" / LANG;
+    ent = exportBase / "debug" / LANG;
     for (auto &&entry : debugSsd.GetAllSheets())
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;

@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 #include <string>
-
-class BinaryData;
+#include "BinaryData.h"
 
 /**
  * @brief 用于处理Sqwt相关文件的类

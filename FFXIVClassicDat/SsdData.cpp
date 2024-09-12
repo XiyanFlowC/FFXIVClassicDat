@@ -1,4 +1,5 @@
 ﻿#include "SsdData.h"
+#include "BinaryData.h"
 #include "DataManager.h"
 #include "Sheet.h"
 #include "xybase/Exception/InvalidOperationException.h"

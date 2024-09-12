@@ -1,10 +1,11 @@
-#include "Sheet.h"
+ï»¿#include "Sheet.h"
 
 #include <format>
 #include <cassert>
 
 #include "DataManager.h"
 #include "ShuffleString.h"
+#include "BinaryData.h"
 #include "xybase/Exception/InvalidParameterException.h"
 #include "xybase/xystring.h"
 #include "SimpleString.h"
@@ -38,8 +39,8 @@ const std::u8string Sheet::ToCsv() const
 {
 	CsvGenerateUtility cgu;
 
-	// TODO: ÔÊĞíÍêÈ«Õ¹¿ª±í£¿£¨Ê¹ÓÃm_columnMax
-	// ±íÍ·
+	// TODO: å…è®¸å®Œå…¨å±•å¼€è¡¨ï¼Ÿï¼ˆä½¿ç”¨m_columnMax
+	// è¡¨å¤´
 	cgu.AddCell(u8"type");
 	for (auto &&type : m_schema.GetSchemaDefinition())
 	{
@@ -158,7 +159,7 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream)
 				int exp = val & 0x3C00;
 				int frac = val & 0x03FF;
 
-				// ÌØÊâÖµ´¦Àí
+				// ç‰¹æ®Šå€¼å¤„ç†
 				if (exp == 0x3C00) // exp all 1
 				{
 					exp = 0x7F800000;
