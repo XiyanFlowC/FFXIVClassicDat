@@ -8,6 +8,7 @@
 #include "xybase/Exception/InvalidParameterException.h"
 #include "xybase/xystring.h"
 #include "SimpleString.h"
+#include "CsvUtility.h"
 
 Sheet::Sheet(const std::u8string &name, int columnMax, int columnCount, int cache, const std::u8string &type, const std::u8string &lang)
 	: m_name(name), m_columnCount(columnCount), m_columnMax(columnMax), m_cache(cache), m_type(type), m_lang(lang)
@@ -31,6 +32,42 @@ Sheet::~Sheet()
 const std::u8string &Sheet::GetName() const
 {
 	return m_name;
+}
+
+const std::u8string Sheet::ToCsv() const
+{
+	CsvGenerateUtility cgu;
+
+	// TODO: 允许完全展开表？（使用m_columnMax
+	// 表头
+	cgu.AddCell(u8"type");
+	for (auto &&type : m_schema.GetSchemaDefinition())
+	{
+		cgu.AddCell(Sheet::Schema::GetTypeName(type));
+	}
+	int rowCount = cgu.NewRow();
+	cgu.AddCell(u8"idx");
+	for (int i = 0; i < m_columnCount; ++i)
+	{
+		cgu.AddCell(xybase::string::itos<char8_t>(m_indices[i]));
+	}
+	cgu.NewRow();
+	
+
+	for (auto &&block : m_blocks)
+	{
+		for (auto &pair : m_rows)
+		{
+			cgu.AddCell(xybase::string::itos<char8_t>(pair.first));
+			for (auto &&cell : pair.second.GetRawRef())
+			{
+				cgu.AddCell(cell.ToString());
+			}
+			cgu.NewRow();
+		}
+	}
+
+	return cgu.ToString();
 }
 
 Sheet::Schema &Sheet::GetSchema()
@@ -75,6 +112,11 @@ void Sheet::Schema::Append(const std::u8string &p_type)
 void Sheet::Schema::Clear()
 {
 	m_schema.clear();
+}
+
+const std::list<Sheet::DataType> &Sheet::Schema::GetSchemaDefinition() const
+{
+	return m_schema;
 }
 
 void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream)
@@ -157,14 +199,32 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream)
 	}
 }
 
+std::u8string Sheet::Schema::GetTypeName(DataType p_type)
+{
+	if (p_type == SDT_U8) return u8"u8";
+	if (p_type == SDT_U16) return u8"u16";
+	if (p_type == SDT_U32) return u8"u32";
+	if (p_type == SDT_S8) return u8"s8";
+	if (p_type == SDT_S16) return u8"s16";
+	if (p_type == SDT_S32) return u8"s32";
+	if (p_type == SDT_F16) return u8"f16";
+	if (p_type == SDT_F32) return u8"float";
+	if (p_type == SDT_STR) return u8"str";
+	if (p_type == SDT_BOOL) return u8"bool";
+
+	throw xybase::InvalidParameterException(L"p_type", L"Invalid DataType!", 59010);
+}
+
 Sheet::Cell::Cell()
 	: m_type(SDT_INVALID)
 {
+	m_plainValue.u_val = 0;
 }
 
 Sheet::Cell::Cell(DataType p_type)
 	: m_type(p_type)
 {
+	m_plainValue.u_val = 0;
 }
 
 Sheet::Cell::Cell(const Cell &p_pat)
@@ -185,12 +245,41 @@ const Sheet::Cell &Sheet::Cell::operator=(const Cell &p_rval)
 	return *this;
 }
 
+inline std::u8string Sheet::Cell::ToString() const
+{
+	if (m_type & SDT_FLAG_INTEGER)
+	{
+		if (m_type & SDT_FLAG_SIGNED)
+		{
+			if (m_plainValue.i_val < 0)
+				return u8"-" + xybase::string::itos<char8_t>(-m_plainValue.i_val);
+			else
+				return xybase::string::itos<char8_t>(m_plainValue.i_val);
+		}
+		else
+			return xybase::string::itos<char8_t>(m_plainValue.u_val);
+	}
+	else if (m_type & SDT_FLAG_BOOL)
+	{
+		return m_plainValue.b_val ? u8"true" : u8"false";
+	}
+	else if (m_type & SDT_FLAG_FLOAT)
+	{
+		return xybase::string::to_utf8(std::to_string(m_plainValue.f_val));
+	}
+	else if (m_type & SDT_FLAG_STR)
+	{
+		return m_str;
+	}
+	else abort();
+}
+
 Sheet::Row::Row(int columnCount, int *pe_indices)
 	: m_cells(columnCount), me_indices(pe_indices), m_cellCount(columnCount)
 {
 }
 
-Sheet::Row::Row(Row &&p_movee)
+Sheet::Row::Row(Row &&p_movee) noexcept
 	: m_cells(std::move(p_movee.m_cells)), me_indices(p_movee.me_indices), m_cellCount(p_movee.m_cellCount)
 {
 }
@@ -215,6 +304,11 @@ Sheet::Cell &Sheet::Row::GetCell(int col)
 Sheet::Cell &Sheet::Row::operator[](int col)
 {
 	return GetCell(col);
+}
+
+const std::vector<Sheet::Cell> &Sheet::Row::GetRawRef() const
+{
+	return m_cells;
 }
 
 void Sheet::LoadRow(int row)

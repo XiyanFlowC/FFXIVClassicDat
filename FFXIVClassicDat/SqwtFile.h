@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-#include "BinaryData.h"
+class BinaryData;
 
 /**
  * @brief 用于处理Sqwt相关文件的类

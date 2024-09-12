@@ -3,6 +3,9 @@
 #include <format>
 #include <filesystem>
 #include <fstream>
+
+#include "BinaryData.h"
+#include "xybase/BinaryStream.h"
 #include "xybase/Exception/InvalidParameterException.h"
 
 DataManager &DataManager::GetInstance()

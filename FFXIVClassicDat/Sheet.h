@@ -60,6 +60,12 @@ public:
 
 	const std::u8string &GetName() const;
 
+	/**
+	 * @brief 将已经载入的数据转换为Csv
+	 * @return 载入的数据
+	 */
+	const std::u8string ToCsv() const;
+
 	struct BlockInfo
 	{
 		// 启用的项
@@ -180,34 +186,7 @@ public:
 			m_str = value;
 		}
 
-		std::string ToString()
-		{
-			if (m_type & SDT_FLAG_INTEGER)
-			{
-				if (m_type & SDT_FLAG_SIGNED)
-				{
-					if (m_plainValue.i_val < 0)
-						return "-" + xybase::string::itos(-m_plainValue.i_val);
-					else
-						return xybase::string::itos(m_plainValue.i_val);
-				}
-				else
-					return xybase::string::itos(m_plainValue.u_val);
-			}
-			else if (m_type & SDT_FLAG_BOOL)
-			{
-				return m_plainValue.b_val ? "true" : "false";
-			}
-			else if (m_type & SDT_FLAG_FLOAT)
-			{
-				return std::to_string(m_plainValue.f_val);
-			}
-			else if (m_type & SDT_FLAG_STR)
-			{
-				return xybase::string::to_string(m_str);
-			}
-			else abort();
-		}
+		std::u8string ToString() const;
 	protected:
 		DataType m_type;
 		union
@@ -226,7 +205,7 @@ public:
 	public:
 		Row(int columnCount, int* pe_indices);
 
-		Row(Row &&p_movee);
+		Row(Row &&p_movee) noexcept;
 
 		virtual ~Row() {};
 
@@ -235,6 +214,8 @@ public:
 		virtual Cell &GetCell(int col);
 
 		virtual Cell &operator[](int col);
+
+		const std::vector<Cell> &GetRawRef() const;
 	protected:
 		std::vector<Cell> m_cells;
 		int m_cellCur = 0, m_cellCount;
@@ -250,10 +231,14 @@ public:
 
 		void Clear();
 
+		const std::list<DataType> &GetSchemaDefinition() const;
+
 		virtual void ReadRow(Row& p_row, xybase::BinaryStream &p_dataStream);
 
 		// TODO: Implement this!
 		// virtual void WriteRow(xybase::BinaryStream &p_dataStream, const Row &p_row);
+
+		static std::u8string GetTypeName(DataType p_type);
 
 	private:
 		std::list<DataType> m_schema;

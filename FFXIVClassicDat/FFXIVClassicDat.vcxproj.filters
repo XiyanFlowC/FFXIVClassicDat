@@ -114,6 +114,9 @@
     <ClCompile Include="SqwtDecryptUtility.cpp">
       <Filter>源文件\crypto</Filter>
     </ClCompile>
+    <ClCompile Include="CsvUtility.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xybase\BinaryStream.h">
@@ -217,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="SqwtDecryptUtility.h">
       <Filter>头文件\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="CsvUtility.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

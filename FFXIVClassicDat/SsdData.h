@@ -4,7 +4,8 @@
 #include <map>
 #include <string>
 #include <list>
-#include "Sheet.h"
+
+class Sheet;
 
 class SsdData
 {

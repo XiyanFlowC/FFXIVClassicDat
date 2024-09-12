@@ -5,6 +5,7 @@
 #include <cstring>
 #include "xybase/xystring.h"
 #include "SimpleString.h"
+#include "BinaryData.h"
 
 std::wstring LuaScriptFile::subalphabet = L"0123456789abcdefghijklmnopqrstuvwxyz";
 std::wstring LuaScriptFile::revalphabet = L"jihgfedcba9876543210zyxwvutsrqponmlk";

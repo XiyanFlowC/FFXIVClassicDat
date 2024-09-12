@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include <string>
-#include "BinaryData.h"
 #include <map>
+
+class BinaryData;
 
 class LuaScriptFile
 {

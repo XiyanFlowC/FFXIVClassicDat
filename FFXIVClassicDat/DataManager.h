@@ -2,8 +2,11 @@
 
 #include <string>
 
-#include "BinaryData.h"
-#include "xybase/BinaryStream.h"
+namespace xybase
+{
+	class BinaryStream;
+}
+class BinaryData;
 
 /**
  * @brief 从Data文件夹读取数据文件所用的类

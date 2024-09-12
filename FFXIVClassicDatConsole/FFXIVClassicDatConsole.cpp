@@ -2,7 +2,9 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <filesystem>
 
 #include "SsdData.h"
 #include "DataManager.h"
@@ -23,11 +25,18 @@ int main()
     SsdData gameSsd(0x01030000, LANG);
 
     std::cout << "ffxivboot.exe SSD" << std::endl;
+    std::filesystem::path exportBase("sheets");
+    std::filesystem::path ent = exportBase / "ffxivboot" / LANG;
     for (auto &&entry : bootSsd.GetAllSheets())
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
+        auto path = ent / (entry->GetName() + u8".csv");
+        if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
+        std::ofstream pen(path);
     }
+
     std::cout << "ffxivgame.exe SSD" << std::endl;
+    std::filesystem::path ent = exportBase / "ffxivgame" / LANG;
     for (auto &&entry : gameSsd.GetAllSheets())
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
@@ -35,6 +44,7 @@ int main()
 
     SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
     std::cout << "debug SSD" << std::endl;
+    std::filesystem::path ent = exportBase / "debug" / LANG;
     for (auto &&entry : debugSsd.GetAllSheets())
     {
         std::cout << xybase::string::to_string(entry->GetName()) << std::endl;

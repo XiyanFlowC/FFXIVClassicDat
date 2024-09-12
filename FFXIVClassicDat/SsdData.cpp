@@ -1,5 +1,6 @@
 ﻿#include "SsdData.h"
 #include "DataManager.h"
+#include "Sheet.h"
 #include "xybase/Exception/InvalidOperationException.h"
 #include <cassert>
 

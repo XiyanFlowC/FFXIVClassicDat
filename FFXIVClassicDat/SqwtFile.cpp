@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstring>
 
+#include "BinaryData.h"
 #include "xybase/xystring.h"
 #include "xybase/Exception/NotImplementedException.h"
 #include "SqwtDecryptUtility.h"
