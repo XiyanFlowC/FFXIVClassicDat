@@ -130,6 +130,7 @@ void ParseSheetTag(Sheet *target, const xybase::xml::XmlNode &node)
 				block.offset = xybase::string::stoi(file.GetAttribute(u"offset"));
 				block.enable = xybase::string::stoi(file.GetAttribute(u"enable"));
 				block.data = xybase::string::stoi(file.GetChildren().begin()->GetText());
+				target->AppendBlock(block);
 			}
 		}
 		else

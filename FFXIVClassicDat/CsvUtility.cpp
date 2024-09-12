@@ -19,7 +19,7 @@ void CsvGenerateUtility::AddCell(const std::u8string &p_str)
 {
 	if (m_cellCount++) m_sb.Append(',');
 
-	if (p_str.find_first_of(u8"\n\r\"") != std::u8string::npos)
+	if (p_str.find_first_of(u8"\n\r\",") != std::u8string::npos)
 	{
 		m_sb += '"';
 		for (auto &&ch : p_str)
@@ -27,6 +27,7 @@ void CsvGenerateUtility::AddCell(const std::u8string &p_str)
 			if (ch == '"') m_sb += u8"\"\"";
 			else m_sb += ch;
 		}
+		m_sb += '"';
 	}
 	else
 	{

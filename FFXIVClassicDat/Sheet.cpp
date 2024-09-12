@@ -2,6 +2,7 @@
 
 #include <format>
 #include <cassert>
+#include <iostream>
 
 #include "DataManager.h"
 #include "ShuffleString.h"
@@ -120,11 +121,19 @@ const std::list<Sheet::DataType> &Sheet::Schema::GetSchemaDefinition() const
 	return m_schema;
 }
 
-void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream)
+void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size_t limit)
 {
 	for (DataType type : m_schema)
 	{
 		Cell cell(type);
+
+		if (p_dataStream.Tell() == limit)
+		{
+			// TODO: 检查是否需要保持默认值
+			// p_row.AppendCell(cell);
+			continue;
+		}
+
 		if (type & SDT_FLAG_INTEGER)
 		{
 			if (type & SDT_FLAG_8BIT)
@@ -197,6 +206,9 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream)
 
 			delete[] str;
 		}
+		else abort();
+
+		p_row.AppendCell(cell);
 	}
 }
 
@@ -266,13 +278,16 @@ inline std::u8string Sheet::Cell::ToString() const
 	}
 	else if (m_type & SDT_FLAG_FLOAT)
 	{
-		return xybase::string::to_utf8(std::to_string(m_plainValue.f_val));
+		return (char8_t *)std::to_string(m_plainValue.f_val).c_str();
 	}
 	else if (m_type & SDT_FLAG_STR)
 	{
 		return m_str;
 	}
-	else abort();
+	else if (m_type == SDT_INVALID)
+	{
+		return u8"";
+	}
 }
 
 Sheet::Row::Row(int columnCount, int *pe_indices)
@@ -314,6 +329,7 @@ const std::vector<Sheet::Cell> &Sheet::Row::GetRawRef() const
 
 void Sheet::LoadRow(int row)
 {
+	if (m_rows.contains(row)) return;
 	for (auto &&block : m_blocks)
 	{
 		if (block.begin <= row && block.begin + block.count > row)
@@ -349,6 +365,13 @@ Sheet::Row &Sheet::operator[](int row)
 	return GetRow(row);
 }
 
+inline uint32_t GetBeginingOffset(uint32_t *offset, int idx, size_t length)
+{
+	assert(idx < length);
+	return idx == 0 ? 0 : offset[idx - 1];
+	// return offset[idx];
+}
+
 void Sheet::LoadBlock(const BlockInfo &p_block)
 {
 	BinaryData offset = DataManager::GetInstance().LoadData(p_block.offset);
@@ -361,17 +384,19 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 
 	struct EnableEntry { uint32_t idx; uint32_t cnt; } *enableEntries = (EnableEntry *)enable.GetData();
 	int enableEntriesCount = enable.GetLength() / 8;
-	int *offsets = (int *)offset.GetData();
+	uint32_t *offsets = (uint32_t *)offset.GetData();
 	int offsetCount = offset.GetLength() / 4;
+	// assert(p_block.count == offsetCount);
 
 	if (m_cfgIgnoreEnableIndication)
 	{
 		for (int i = 0; i < p_block.count; ++i)
 		{
-			data->Seek(offsets[p_block.begin + i]);
+			data->Seek(GetBeginingOffset(offsets, i, offsetCount));
 			Sheet::Row row(m_columnCount, m_indices);
-			m_schema.ReadRow(row, *data);
-			m_rows.insert(std::make_pair(p_block.begin + i, std::move(row)));
+			m_schema.ReadRow(row, *data, offsets[i]);
+			m_rows.insert(std::make_pair(i, std::move(row)));
+			assert(data->Tell() == offsets[i]);
 		}
 	}
 	else
@@ -380,10 +405,29 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 		{
 			for (int j = 0; j < enableEntries[i].cnt; ++j)
 			{
-				data->Seek(offsets[enableEntries[i].idx + j]);
+				int idx = enableEntries[i].idx + j;
+				data->Seek(GetBeginingOffset(offsets, idx - p_block.begin, offsetCount));
 				Sheet::Row row(m_columnCount, m_indices);
-				m_schema.ReadRow(row, *data);
-				m_rows.insert(std::make_pair(p_block.begin + j, std::move(row)));
+				try
+				{
+					m_schema.ReadRow(row, *data, offsets[idx - p_block.begin]);
+				}
+				catch (xybase::IOException &ex)
+				{
+					if (data->IsEof() && data->Tell() == offsets[idx - p_block.begin])
+					{
+						std::cerr << std::format("Warning! data[{:08X}]:row {} wield! early cut!\n", p_block.data, idx);
+					}
+					else
+					{
+						throw xybase::RuntimeException(
+							std::format(
+								L"Ill-formed sheet row! data={:08X}, enable={:08X}, offset={:08X}, row={}",
+								p_block.data, p_block.enable, p_block.offset, idx), 717010);
+					}
+				}
+				m_rows.insert(std::make_pair(idx, std::move(row)));
+				assert(data->Tell() == offsets[idx - p_block.begin]);
 			}
 		}
 	}

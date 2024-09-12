@@ -8,6 +8,16 @@
 #include "xybase/BinaryStream.h"
 #include "xybase/Exception/InvalidParameterException.h"
 
+DataManager::FileMissingException::FileMissingException(uint32_t p_missFileId)
+	: xybase::RuntimeException(std::format(L"Specified data file [{:08X}] missing!", p_missFileId), 87700), m_fileId(p_missFileId)
+{
+}
+
+uint32_t DataManager::FileMissingException::GetFileId()
+{
+	return m_fileId;
+}
+
 DataManager &DataManager::GetInstance()
 {
 	static DataManager _inst;
@@ -18,7 +28,7 @@ BinaryData DataManager::LoadData(uint32_t p_id)
 {
 	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);
 
-	if (!std::filesystem::exists(path)) throw xybase::InvalidParameterException(L"p_id", L"Specified file not found.", 87700);
+	if (!std::filesystem::exists(path)) throw FileMissingException(p_id);
 
 	size_t fileSize = std::filesystem::file_size(path);
 	char *buffer = new char[fileSize];
@@ -32,7 +42,7 @@ xybase::BinaryStream *DataManager::NewDataStream(uint32_t p_id, const wchar_t *p
 {
 	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);
 
-	if (!std::filesystem::exists(path)) throw xybase::InvalidParameterException(L"p_id", L"Specified file not found.", 87700);
+	if (!std::filesystem::exists(path)) throw FileMissingException(p_id);
 
 	return new xybase::BinaryStream(path, p_mode);
 }

@@ -1,6 +1,9 @@
 ﻿#pragma once
 
+#include <cstdint>
 #include <string>
+
+#include "xybase/Exception/RuntimeException.h"
 
 namespace xybase
 {
@@ -17,6 +20,18 @@ private:
 	DataManager() {};
 
 public:
+	class FileMissingException : public xybase::RuntimeException
+	{
+	public:
+		virtual ~FileMissingException() {};
+
+		FileMissingException(uint32_t p_missFileId);
+
+		uint32_t GetFileId();
+	protected:
+		uint32_t m_fileId;
+	};
+
 	static DataManager &GetInstance();
 
 	std::wstring m_basePath;

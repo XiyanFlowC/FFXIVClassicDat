@@ -87,7 +87,7 @@ public:
 	{
 		void CheckDataStatus(DataType flags)
 		{
-			if ((flags & m_type))
+			if ((flags & SDT_MASK_TYPE) ^ (m_type & SDT_MASK_TYPE))
 			{
 				throw xybase::InvalidOperationException(L"Cannot get value as specified type due to incompatibility.", 95003);
 			}
@@ -233,7 +233,13 @@ public:
 
 		const std::list<DataType> &GetSchemaDefinition() const;
 
-		virtual void ReadRow(Row& p_row, xybase::BinaryStream &p_dataStream);
+		/**
+		 * @brief 读取一行的数据
+		 * @param p_row 数据要保存到的行对象
+		 * @param p_dataStream 数据流
+		 * @param limit 最大流位置：一个数据记录可能提早结束。
+		 */
+		virtual void ReadRow(Row& p_row, xybase::BinaryStream &p_dataStream, size_t limit);
 
 		// TODO: Implement this!
 		// virtual void WriteRow(xybase::BinaryStream &p_dataStream, const Row &p_row);

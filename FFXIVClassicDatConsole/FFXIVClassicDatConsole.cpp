@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <clocale>
 
 #include "SsdData.h"
 #include "DataManager.h"
@@ -12,11 +13,42 @@
 #include "Sheet.h"
 #include "xybase/xystring.h"
 
+void exportSsd(const std::filesystem::path &p_path, const SsdData &p_ssd)
+{
+    for (auto &&entry : p_ssd.GetAllSheets())
+    {
+        std::cout << xybase::string::to_string(entry->GetName()) << ": ";
+        auto path = p_path / (entry->GetName() + u8".csv");
+        if (std::filesystem::exists(path))
+        {
+            std::cout << xybase::string::to_string(L"Skip.\n");
+            continue;
+        }
+        std::cout << "Loading...";
+        try
+        {
+            entry->LoadAll();
+        }
+        catch (DataManager::FileMissingException &ex)
+        {
+            std::cerr << std::format("File missing! Data Id {:08X}\n", ex.GetFileId());
+            continue;
+        }
+        if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
+        std::ofstream pen(path);
+        pen << (char *)entry->ToCsv().c_str();
+        pen.close();
+        std::cout << "Exported.\n";
+    }
+}
+
 int main()
 {
+    setlocale(LC_ALL, "");
+
     const std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
     DataManager::GetInstance().m_basePath = FFXIV_INSTALL_PATH + L"\\data";
-    const std::u8string LANG = u8"chs"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
+    const std::u8string LANG = u8"ja"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
 
     // Sqex Sqwt 分析管理器根据程序不同自动切换？
     // 程序      Ssd          初始化的sqwt基路径
@@ -28,32 +60,23 @@ int main()
     std::cout << "ffxivboot.exe SSD" << std::endl;
     std::filesystem::path exportBase("sheets");
     std::filesystem::path ent = exportBase / "ffxivboot" / LANG;
-    for (auto &&entry : bootSsd.GetAllSheets())
-    {
-        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
-        auto path = ent / (entry->GetName() + u8".csv");
-        if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
-        std::ofstream pen(path);
-    }
+    exportSsd(ent, bootSsd);
 
     std::cout << "ffxivgame.exe SSD" << std::endl;
     ent = exportBase / "ffxivgame" / LANG;
-    for (auto &&entry : gameSsd.GetAllSheets())
-    {
-        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
-    }
+    exportSsd(ent, gameSsd);
 
-    SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
-    std::cout << "debug SSD" << std::endl;
-    ent = exportBase / "debug" / LANG;
-    for (auto &&entry : debugSsd.GetAllSheets())
-    {
-        std::cout << xybase::string::to_string(entry->GetName()) << std::endl;
-    }
+    // 似乎是用于可视化二进制数据的？不确定用途：var_equip var_tex_path var_wep
+    // 若以文本形式保存这些表可能需要10G以上的空间
+    // 价值低，放弃
+    //SsdData debugSsd(0x3A70000, LANG); // CDev.Engine.Fw.Framework.Debug
+    //std::cout << "debug SSD" << std::endl;
+    //ent = exportBase / "debug" / LANG;
+    //exportSsd(ent, debugSsd);
 
-    std::wstring SQWT_BASE_PATH = FFXIV_INSTALL_PATH + L"\\client\\sqwt\\boot";
+    // std::wstring SQWT_BASE_PATH = FFXIV_INSTALL_PATH + L"\\client\\sqwt\\boot";
 
-    SqwtFile candidateList(SQWT_BASE_PATH + L"\\system\\ime\\CandidateList.form");
+    // SqwtFile candidateList(SQWT_BASE_PATH + L"\\system\\ime\\CandidateList.form");
     // std::cout << (char*)patch.FileContent.GetData() << std::endl;
 }
 
