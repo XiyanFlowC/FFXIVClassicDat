@@ -414,17 +414,10 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 				}
 				catch (xybase::IOException &ex)
 				{
-					if (data->IsEof() && data->Tell() == offsets[idx - p_block.begin])
-					{
-						std::cerr << std::format("Warning! data[{:08X}]:row {} wield! early cut!\n", p_block.data, idx);
-					}
-					else
-					{
-						throw xybase::RuntimeException(
-							std::format(
-								L"Ill-formed sheet row! data={:08X}, enable={:08X}, offset={:08X}, row={}",
-								p_block.data, p_block.enable, p_block.offset, idx), 717010);
-					}
+					throw xybase::RuntimeException(
+						std::format(
+							L"Ill-formed sheet row! data={:08X}, enable={:08X}, offset={:08X}, row={}",
+							p_block.data, p_block.enable, p_block.offset, idx), 717010);
 				}
 				m_rows.insert(std::make_pair(idx, std::move(row)));
 				assert(data->Tell() == offsets[idx - p_block.begin]);
