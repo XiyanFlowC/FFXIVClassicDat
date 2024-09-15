@@ -365,3 +365,5 @@ FodyWeavers.xsd
 /FFXIVClassicDatConsole/data_mod
 /FFXIVClassicDatConsole/Missing Dat.txt
 /FFXIVClassicDatConsole/type.txt
+/FFXIVClassicDatConsole/WorkArea
+*.bin
