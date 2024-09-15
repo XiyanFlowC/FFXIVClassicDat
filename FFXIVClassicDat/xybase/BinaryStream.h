@@ -24,6 +24,8 @@ namespace xybase
 		std::wstring name;
 
 	public:
+		using xybase::StreamBasic::Write;
+
 		/**
 		 * @brief 创建二进制流用于读写
 		 * @param path 目标文件路径

@@ -134,7 +134,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="FFXIVClassicDatConsole.cpp" />
+    <ClCompile Include="FileScanner.cpp" />
+    <ClCompile Include="LocLite.cpp" />
+    <ClCompile Include="RunAsAdmin.cpp" />
+    <ClCompile Include="SsdOperation.cpp" />
+    <ClCompile Include="SsdViewer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="FileScanner.h" />
+    <ClInclude Include="liteopt.h" />
+    <ClInclude Include="LocLite.h" />
+    <ClInclude Include="RunAsAdmin.h" />
+    <ClInclude Include="SsdOperation.h" />
+    <ClInclude Include="SsdViewer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -264,7 +264,7 @@ namespace xybase
 				}
 				else
 				{
-					sb += ori;
+					sb += ch;
 				}
 			}
 			return sb.ToString();
@@ -353,6 +353,40 @@ namespace xybase
 		{
 			long long ret = str[0] == '-' ? -1 : 1;
 			return ret * stoi<T>(str[0] == '-' ? str.substr(1) : str);
+		}
+
+		template<typename T = char>
+		double pflt(const std::basic_string<T> &str, int base = 10)
+		{
+			double res = 0.0;
+			int isNeg = 0, flag = 0;
+			double fact = 0.1;
+			for (int ch : str) {
+				if (!isdigit(ch))
+				{
+					if (ch == '-')
+					{
+						isNeg ^= 1;
+						continue;
+					}
+					else if (ch == '.')
+					{
+						flag = 1;
+						continue;
+					}
+					else throw xybase::InvalidParameterException(L"value", L"not a valid real number.", 37701);
+				}
+
+				if (flag)
+				{
+					res = res + fact * (ch - '0');
+					fact *= 0.1;
+				}
+				else
+					res = res * 10 + ch - '0';
+			}
+
+			return isNeg ? -res : res;
 		}
 
 		template<typename T = char>

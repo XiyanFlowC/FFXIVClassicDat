@@ -1,6 +1,8 @@
 ﻿// FFXIVClassicDat.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -12,224 +14,204 @@
 #include "SqwtFile.h"
 #include "Sheet.h"
 #include "xybase/xystring.h"
+#include "Config.h"
 
-const std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
+#include "FileScanner.h"
+#include "SsdOperation.h"
 
-void exportSsd(const std::filesystem::path &p_path, const SsdData &p_ssd)
+//const std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
+// std::wstring FFXIV_INSTALL_PATH = L"C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV";
+
+#include "SsdViewer.h"
+#include <fstream>
+#include "liteopt.h"
+
+#include "RunAsAdmin.h"
+
+int config(const char *para)
 {
-    for (auto &&entry : p_ssd.GetAllSheets())
-    {
-        std::cout << xybase::string::to_string(entry->GetName()) << ": ";
-        auto path = p_path / (entry->GetName() + u8".csv");
-        if (std::filesystem::exists(path))
-        {
-            std::cout << xybase::string::to_string(L"Skip.\n");
-            continue;
-        }
-        std::cout << "Loading...";
-        try
-        {
-            entry->LoadAll();
-        }
-        catch (DataManager::FileMissingException &ex)
-        {
-            std::cerr << std::format("File missing! Data Id {:08X}, Ssd: {}\n", ex.GetFileId(), (char *)entry->GetName().c_str());
-            std::ofstream expen("Missing Dat.txt", std::ios::app);
-            expen << std::format("{} : {}({:08X})\n", (char *)entry->GetName().c_str(), ex.GetFileId(), ex.GetFileId());
-            expen.close();
-            continue;
-        }
-        if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
-        std::ofstream pen(path);
-        pen << (char *)entry->ToCsv().c_str();
-        pen.close();
-        std::cout << "Exported.\n";
-    }
-}
-
-/**
- * @brief 导出Sqwt的SSD。这些是界面UI文字。
- */
-void exportSqwtSsdFiles()
-{
-    DataManager::GetInstance().m_basePath = FFXIV_INSTALL_PATH + L"\\data";
-    const std::u8string LANG = u8"chs"; // 有效值：ja en de fr chs cht 日 英 德 法 汉（简 繁）
-
-    // Sqex Sqwt 分析管理器根据程序不同自动切换？
-    // 程序      Ssd          初始化的sqwt基路径
-    // Boot   0x27950000   client\\sqwt\\boot\\
-    // Game   0x01030000   client\\sqwt\\ 
-    SsdData bootSsd(0x27950000, LANG);
-    SsdData gameSsd(0x01030000, LANG);
-
-    std::cout << "ffxivboot.exe SSD" << std::endl;
-    std::filesystem::path exportBase("sheets");
-    std::filesystem::path ent = exportBase / "ffxivboot" / LANG;
-    exportSsd(ent, bootSsd);
-
-    std::cout << "ffxivgame.exe SSD" << std::endl;
-    ent = exportBase / "ffxivgame" / LANG;
-    exportSsd(ent, gameSsd);
-}
-
-#include "ShuffleString.h"
-#include "SqwtDecryptUtility.h"
-
-/**
- * @brief 
- * @param bd 
- * @return 0 - not xml 1 - xml 2 - ssd
- */
-int GetXmlType(BinaryData &bd)
-{
-    if (memcmp(bd.GetData(), "\xEF\xBB\xBF", 3) == 0)
-    {
-        std::string str((char *)bd.GetData(), 3, bd.GetLength() - 3);
-        if (str.starts_with("<?xml"))
-        {
-            if (str.find("<ssd ") != std::string::npos)
-            {
-                return 2;
-            }
-            return 1;
-        }
-    }
-
-    ShuffleString ss;
-    BinaryData tmp(bd.GetLength() + 1);
-    int length = ss.Decrypt(bd.GetData(), bd.GetLength(), tmp.GetData(), tmp.GetLength());
-    if (length < 0)
-    {
-        length = bd.GetLength();
-    }
-    ((char *)tmp.GetData())[length] = 0;
-
-    if (memcmp(tmp.GetData(), "\xEF\xBB\xBF", 3) == 0)
-    {
-        std::string str((char *)tmp.GetData() + 3);
-        if (str.starts_with("<?xml"))
-        {
-            if (str.find("<ssd ") != std::string::npos)
-            {
-                return 2;
-            }
-            return 1;
-        }
-    }
+    std::string p(para);
+    std::string key = p.substr(0, p.find_first_of('=')), value = p.substr(p.find_first_of('=') + 1);
+    if (key == "ffxiv-install-location")
+        Config::GetInstance().m_ffxivInstallPath = xybase::string::to_wstring(value);
+    if (key == "output-location")
+        Config::GetInstance().m_workArea = xybase::string::to_wstring(value);
     return 0;
 }
 
-int IsOgg(BinaryData &bd)
+int setInstallLocation(const char *para)
+{
+    Config::GetInstance().m_ffxivInstallPath = xybase::string::to_wstring(para);
+    return 0;
+}
+
+int setWorkAreaLocation(const char *para)
+{
+    Config::GetInstance().m_workArea = xybase::string::to_wstring(para);
+    return 0;
+}
+
+int setLanguage(const char *para)
+{
+    std::string p(para);
+    int val = xybase::string::stoi(p);
+    if (p == "ja") val = 0;
+    else if (p == "en") val = 1;
+    else if (p == "de") val = 2;
+    else if (p == "fr") val = 3;
+    else if (p == "chs") val = 4;
+    else if (p == "cht") val = 5;
+
+    if (val < 0 || val > 5)
+    {
+        return 10;
+    }
+    Config::GetInstance().m_lang = val;
+    return 0;
+}
+
+int help(const char *para)
 {
     return 0;
 }
 
-int IsBlock(BinaryData &bd)
+enum Action {
+    ACT_INVALID,
+    ACT_BUILD_DATABASE,
+    ACT_DECRYPT_SSD,
+    ACT_EXPORT_SHEETS,
+    ACT_IMPORT_SHEETS,
+    ACT_EXPORT_SPECIFIED_SSD,
+    ACT_IMPORT_SPECIFIED_SSD,
+    ACT_PLACEHOLDER
+};
+
+Action action = ACT_INVALID;
+
+uint32_t ssdTarget = 0;
+std::u8string sheetName;
+
+int main(int argc, const char ** argv)
 {
-    return 0;
-}
-
-int IsGtex(BinaryData &bd)
-{
-    return 0;
-}
-
-void FileDetect(std::ofstream &recorder, const std::filesystem::directory_entry &ent)
-{
-    std::cout << "Regular file " << ent.path();
-
-    size_t size = ent.file_size();
-    uint8_t *buffer = new uint8_t[size];
-    std::ifstream eye(ent.path(), std::ios::binary);
-    eye.read((char *)buffer, size);
-    eye.close();
-    BinaryData bd(buffer, size, false);
-
-    if (int x = GetXmlType(bd))
-    {
-        if (x == 1)
-        {
-            recorder << "XML" << "\t" << ent.path() << std::endl;
-            std::cout << "XML!\n";
-        }
-        else if (x == 2)
-        {
-            recorder << "SSD" << "\t" << ent.path() << std::endl;
-            std::cout << "SSD!\n";
-        }
-    }
-    else if (IsOgg(bd))
-    {
-        recorder << "OGG" << "\t" << ent.path() << std::endl;
-        std::cout << "OGG!\n";
-    }
-    else if (IsGtex(bd))
-    {
-        recorder << "GTEX" << "\t" << ent.path() << std::endl;
-        std::cout << "GTEX!\n";
-    }
-    else
-    {
-        std::cout << "???\n";
-    }
-}
-
-void FileScan()
-{
-    std::filesystem::path dataPath = FFXIV_INSTALL_PATH + L"\\data";
-    //std::filesystem::path dataPath = ;
-    std::filesystem::recursive_directory_iterator itr(dataPath);
-    std::ofstream recorder("type.txt");
-    // FileDetect(recorder, std::filesystem::directory_entry("C:\\Program Files (x86)\\SquareEnix\\FINAL FANTASY XIV\\data\\0B\\45\\0B\\C8.DAT"));
-    for (auto &&ent : itr)
-    {
-        if (ent.is_regular_file())
-        {
-            FileDetect(recorder, ent);
-        }
-    }
-}
-
-void DecryptSsd()
-{
-    std::ifstream record("type.txt");
-
-    while (record)
-    {
-        std::string type;
-        std::filesystem::path path;
-        record >> type >> path;
-        if (type == "SSD")
-        {
-            std::ifstream f(path, std::ios::binary);
-            std::filesystem::path outputPath(path.lexically_relative(FFXIV_INSTALL_PATH));
-            std::filesystem::create_directories(outputPath.parent_path());
-            std::ofstream o(outputPath, std::ios::binary);
-            size_t size = std::filesystem::file_size(path);
-            char *buffer = new char[size];
-            f.read(buffer, size);
-            ShuffleString ss;
-            int ret = ss.Decrypt(buffer, size, buffer, size);
-            if (ret < 0) ret = size;
-            f.close();
-            o.write(buffer, ret);
-            o.close();
-
-            delete []buffer;
-        }
-    }
-}
-
-int main()
-{
+    if (argc == 1) help(nullptr);
     setlocale(LC_ALL, "");
 
-    // exportSqwtSsdFiles();
+    lopt_regopt("config", 'c', LOPT_FLG_VAL_NEED, config);
+    lopt_regopt("install-path", 'I', LOPT_FLG_VAL_NEED, setInstallLocation);
+    lopt_regopt("work-area-path", 'O', LOPT_FLG_VAL_NEED, setWorkAreaLocation);
+    lopt_regopt("lang", 'L', LOPT_FLG_VAL_NEED, setLanguage);
+    
+    lopt_regopt("scan", 'S', 0, [](const char *para)->int {
+        std::filesystem::remove("type.txt");
+        action = ACT_BUILD_DATABASE;
+        return 0;
+        });
+    lopt_regopt("decrypt-ssd", 'd', 0, [](const char *para)->int {
+        action = ACT_DECRYPT_SSD;
+        return 0;
+        });
+    lopt_regopt("export-ssd", 'e', 0, [](const char *para)->int {
+        if (para)
+        {
+            action = ACT_EXPORT_SPECIFIED_SSD;
+            std::string p(para);
+            if (p.starts_with("0x")) ssdTarget = xybase::string::stoi(p.substr(2), 16);
+            else ssdTarget = xybase::string::stoi(p);
+            return 0;
+        }
+        action = ACT_EXPORT_SHEETS;
+        return 0;
+        });
+    lopt_regopt("import-ssd", 'i', 0, [](const char *para)->int {
+        if (para)
+        {
+            action = ACT_IMPORT_SPECIFIED_SSD;
+            std::string p(para);
+            if (p.starts_with("0x")) ssdTarget = xybase::string::stoi(p.substr(2), 16);
+            else ssdTarget = xybase::string::stoi(p);
+            return 0;
+        }
+        action = ACT_IMPORT_SHEETS;
+        return 0;
+        });
+    lopt_regopt("sheet", 's', LOPT_FLG_VAL_NEED, [](const char *para)->int {
+        sheetName = xybase::string::to_utf8(para);
+        return 0;
+        });
+    lopt_regopt("help", '?', 0, help);
 
-    // FileScan();
 
-    DecryptSsd();
+    int ret = lopt_parse(argc, argv);
+    if (ret)
+    {
+        if (ret < 0)
+        {
+            std::wcerr << std::format(L"{}: 语法有误或是不存在的开关。\n", xybase::string::to_wstring(argv[-ret]));
+        }
+        if (ret == 10)
+        {
+            std::wcerr << L"-L: 错误，给定的值不在许可范围内（ja/en/de/fr/chs/cht）" << std::endl;
+        }
+        exit(ret);
+    }
 
+    lopt_finalize();
+
+    try
+    {
+        DataManager::GetInstance().m_basePath = Config::GetInstance().GetGamePath() / "data";
+        FileScanner fs;
+        SsdOperation so;
+        switch (action)
+        {
+        case ACT_INVALID:
+            break;
+        case ACT_BUILD_DATABASE:
+            fs.FileScan();
+            break;
+        case ACT_DECRYPT_SSD:
+            so.DecryptSsd();
+            break;
+        case ACT_EXPORT_SHEETS:
+            so.ExportAllSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName());
+            break;
+        case ACT_IMPORT_SHEETS:
+            break;
+        case ACT_EXPORT_SPECIFIED_SSD:
+        {
+            SsdData sd(ssdTarget, Config::GetInstance().GetLangName());
+            so.ExportSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName(), sd, sheetName);
+        }
+        break;
+        case ACT_IMPORT_SPECIFIED_SSD:
+        {
+            SsdData sd(ssdTarget, Config::GetInstance().GetLangName());
+            so.ImportSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName(), sd, sheetName);
+        }
+        break;
+        case ACT_PLACEHOLDER:
+            break;
+        default:
+            break;
+        }
+    }
+    catch (xybase::IOException &ex)
+    {
+        if (ex.GetErrorCode() == EACCES)
+        {
+            std::wcerr << L"权限不足，请求提权。" << std::endl;
+            RunAsAdmin::Execute();
+            return EACCES;
+        }
+        else std::wcerr << L"发生了异常。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
+    }
+#ifdef NDEBUG
+    catch (xybase::RuntimeException &ex)
+    {
+        std::wcerr << L"发生了异常。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
+    }
+#endif
+    
     // 似乎是用于可视化二进制数据的？不确定用途：var_equip var_tex_path var_wep
     // 若以文本形式保存这些表可能需要10G以上的空间
     // 价值低，放弃
@@ -237,11 +219,6 @@ int main()
     //std::cout << "debug SSD" << std::endl;
     //ent = exportBase / "debug" / LANG;
     //exportSsd(ent, debugSsd);
-
-    // std::wstring SQWT_BASE_PATH = FFXIV_INSTALL_PATH + L"\\client\\sqwt\\boot";
-
-    // SqwtFile candidateList(SQWT_BASE_PATH + L"\\system\\ime\\CandidateList.form");
-    // std::cout << (char*)patch.FileContent.GetData() << std::endl;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

@@ -14,9 +14,11 @@ public:
 
 	SsdData(uint32_t p_fileId, const std::u8string &p_language);
 
+	SsdData(const std::wstring &path, const std::u8string &p_language);
+
 	~SsdData();
 
-	const Sheet *GetSheet(const std::u8string &sheetName);
+	Sheet * GetSheet(const std::u8string &sheetName) const;
 
 	void AppendSheet(const std::u8string &sheetName, Sheet *sheet);
 
@@ -25,6 +27,8 @@ public:
 	std::list<Sheet *> GetAllSheets() const;
 private:
 	void ParseRaptureSsdData(uint32_t id);
+
+	void ParseRaptureSsdData(std::wstring path);
 
 	void ParseRaptureSsdData(const char8_t *xml, int length);
 

@@ -1,24 +1,41 @@
 #pragma once
 
+#include <filesystem>
+
+#include "xybase/BinaryStream.h"
 #include "xybase/StringBuilder.h"
 
-class CsvGenerateUtility
+class CsvFile
 {
 public:
+	enum class OperationType
+	{
+		Read,
+		Write,
+		Append,
+	};
 
-	CsvGenerateUtility(bool p_addBom = true);
+	CsvFile(std::wstring filePath, OperationType mode);
 
-	void NewSheet(bool p_addBom);
+	~CsvFile();
 
-	void AddCell(const std::u8string &p_str);
+	std::u8string NextCell();
 
-	int NewRow();
+	void NewCell(const std::u8string &p_str);
 
-	std::u8string ToString();
+	void NextLine();
+
+	void NewLine();
+
+	bool IsEol();
+
+	bool IsEof();
+
+	void Close();
 
 private:
-	int m_cellCount = 0;
-
-	xybase::StringBuilder<char8_t> m_sb;
+	xybase::BinaryStream *m_stream;
+	size_t m_size = 0;
+	bool m_eolFlag = false;
+	bool m_firstCellFlag = true;
 };
-

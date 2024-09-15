@@ -42,7 +42,7 @@ xybase::BinaryStream *DataManager::NewDataStream(uint32_t p_id, const wchar_t *p
 {
 	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);
 
-	if (!std::filesystem::exists(path)) throw FileMissingException(p_id);
+	if ((p_mode[0] == 'r' || p_mode[1] == 'r') && !std::filesystem::exists(path)) throw FileMissingException(p_id);
 
 	return new xybase::BinaryStream(path, p_mode);
 }

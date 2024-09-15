@@ -48,11 +48,13 @@ std::u16string xybase::BinaryStream::GetName() const
 
 void BinaryStream::ReadBytes(char* buffer, size_t limit)
 {
+	if (limit == 0) return;
 	if (1 != fread(buffer, limit, 1, stream)) throw IOException(name, L"Read error.");
 }
 
 void BinaryStream::Write(const char* buffer, size_t size)
 {
+	if (size == 0) return;
 	if (1 != fwrite(buffer, size, 1, stream)) throw IOException(name, L"Write error.");
 }
 

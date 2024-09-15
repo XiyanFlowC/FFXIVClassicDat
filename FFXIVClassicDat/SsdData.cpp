@@ -16,6 +16,12 @@ SsdData::SsdData(uint32_t p_fileId, const std::u8string &p_language)
 	ParseRaptureSsdData(m_fileId);
 }
 
+SsdData::SsdData(const std::wstring &path, const std::u8string &p_language)
+	: m_fileId(-1), m_language(p_language)
+{
+	ParseRaptureSsdData(path);
+}
+
 SsdData::~SsdData()
 {
 	for (auto &&pair : m_sheets)
@@ -24,12 +30,13 @@ SsdData::~SsdData()
 	}
 }
 
-const Sheet *SsdData::GetSheet(const std::u8string &sheetName)
+Sheet * SsdData::GetSheet(const std::u8string &sheetName) const
 {
 	if (!m_isSsdParsed) throw xybase::InvalidOperationException(L"Ssd data have not been parsed yet!", 86700);
 
-	return m_sheets[sheetName];
-	m_isModified = 1;
+	if (!m_sheets.contains(sheetName)) return nullptr;
+
+	return m_sheets.find(sheetName)->second;
 }
 
 void SsdData::AppendSheet(const std::u8string &sheetName, Sheet *sheet)
@@ -62,10 +69,36 @@ std::list<Sheet *> SsdData::GetAllSheets() const
 }
 
 #include "ShuffleString.h"
+#include <filesystem>
 
 void SsdData::ParseRaptureSsdData(uint32_t id)
 {
 	auto data = DataManager::GetInstance().LoadData(id);
+
+	// ShuffleString
+	ShuffleString ss;
+	int length = ss.Decrypt(data.GetData(), data.GetLength(), data.GetData(), data.GetLength());
+	if (length < 0) length = data.GetLength();
+
+	// utf-8 BOM check
+	if (!memcmp(data.GetData(), "\xEF\xBB\xBF", 3))
+	{
+		ParseRaptureSsdData((char8_t *)data.GetData() + 3, length - 3);
+	}
+	else
+	{
+		ParseRaptureSsdData((char8_t *)data.GetData(), length);
+	}
+
+	m_isSsdParsed = 1;
+}
+
+void SsdData::ParseRaptureSsdData(std::wstring path)
+{
+	BinaryData data(std::filesystem::file_size(path));
+	xybase::BinaryStream eye(path, L"rb");
+	eye.ReadBytes((char *)data.GetData(), data.GetLength());
+	eye.Close();
 
 	// ShuffleString
 	ShuffleString ss;
@@ -166,11 +199,12 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 			int cache = xybase::string::pint<char16_t>(child.GetAttribute(u"cache"));
 			std::u8string type = xybase::string::to_utf8(child.GetAttribute(u"type"));
 			std::u8string lang = xybase::string::to_utf8(child.GetAttribute(u"lang"));
+			std::u8string param = xybase::string::to_utf8(child.GetAttribute(u"param"));
 
 			// 该表是当前指定的语言的表
 			if (lang == m_language || lang == u8"")
 			{
-				Sheet *sheet = new Sheet(name, columnMax, columnCount, cache, type, lang);
+				Sheet *sheet = new Sheet(name, columnMax, columnCount, cache, type, lang, param);
 				ParseSheetTag(sheet, child);
 				
 				assert(!m_sheets.contains(name));

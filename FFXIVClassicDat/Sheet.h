@@ -10,6 +10,8 @@
 #include "xybase/Xml/XmlNode.h"
 #include "xybase/BinaryStream.h"
 
+class CsvFile;
+
 /**
  * @brief Sheet 是存储在data种的一类dat。这里是infofile的解析。
  * infofile规定了Sheet的schema，并指定了实际数据的存储位置等控制信息。
@@ -19,6 +21,9 @@ class Sheet
 {
 public:
 	bool m_cfgIgnoreEnableIndication = false;
+
+	bool m_cfgInputVerifySchema = true;
+	bool m_cfgInputVerifyIndex = false;
 
 	typedef int DataType;
 	
@@ -50,7 +55,7 @@ public:
 		SDT_BOOL = SDT_FLAG_8BIT | SDT_FLAG_BOOL,
 		SDT_STR = SDT_FLAG_STR;
 
-	Sheet(const std::u8string& name, int columnMax, int columnCount, int cache, const std::u8string &type, const std::u8string &lang);
+	Sheet(const std::u8string& name, int columnMax, int columnCount, int cache, const std::u8string &type, const std::u8string &lang, const std::u8string &param);
 
 	Sheet(const Sheet &) = delete;
 
@@ -61,31 +66,63 @@ public:
 	const std::u8string &GetName() const;
 
 	/**
-	 * @brief 将已经载入的数据转换为Csv
-	 * @return 载入的数据
+	 * @brief 将已经载入的数据写入给定的Csv流
+	 * @param p_csv 
 	 */
-	const std::u8string ToCsv() const;
+	void SaveToCsv(CsvFile &p_csv) const;
 
+	/**
+	 * @brief 从给定的Csv流中读取数据
+	 * @param p_csv 
+	 */
+	void LoadFromCsv(CsvFile &p_csv);
+
+	/**
+	 * @brief 读取所有区块
+	 */
+	void LoadAll();
+
+	/**
+	 * @brief 载入指定行所在的整个区块（若已加载则忽略
+	 * @param row 要载入的行
+	 */
+	void LoadRow(int row);
+
+	/**
+	 * @brief 卸载所有加载的区块。
+	 */
+	void UnloadAll();
+
+	/**
+	 * @brief 保存所有区块。未被加载的区块或行将被置空。
+	 */
+	void SaveAll();
+
+	/* 成员类定义 */
+
+	/**
+	 * @brief 块数据。索引元数据。每个Sheet由若干个 file 保存。这里记录每个 block/file 的关联信息。
+	 */
 	struct BlockInfo
 	{
-		// 启用的项
+		// 启用提示文件编号
 		uint32_t enable;
-		// 各项在数据文件的偏移
+		// 偏移提示文件编号
 		uint32_t offset;
-		// 偏移
+		// 数据文件编号
 		uint32_t data;
-		// 该块的起始位置
+		// 该块的起始行号
 		int begin;
-		// 该块的数目
+		// 该块中包含的行数
 		int count;
 	};
 
 	/**
-	 * @brief 单元格数据。
+	 * @brief 单元格数据。实体。
 	 */
 	class Cell
 	{
-		void CheckDataStatus(DataType flags)
+		void CheckDataStatus(DataType flags) const
 		{
 			if ((flags & SDT_MASK_TYPE) ^ (m_type & SDT_MASK_TYPE))
 			{
@@ -105,38 +142,38 @@ public:
 		const Cell &operator=(const Cell &p_rval);
 
 		template<typename T>
-		T Get();
+		T Get() const;
 
 		template<>
-		int Get()
+		int Get() const
 		{
 			CheckDataStatus(SDT_FLAG_INTEGER);
 			return m_plainValue.i_val;
 		}
 
 		template<>
-		unsigned int Get()
+		unsigned int Get() const
 		{
 			CheckDataStatus(SDT_FLAG_INTEGER);
 			return m_plainValue.u_val;
 		}
 
 		template<>
-		float Get()
+		float Get() const
 		{
 			CheckDataStatus(SDT_FLAG_FLOAT);
 			return m_plainValue.f_val;
 		}
 
 		template<>
-		bool Get()
+		bool Get() const
 		{
 			CheckDataStatus(SDT_FLAG_BOOL);
 			return m_plainValue.b_val;
 		}
 
 		template<>
-		std::u8string Get()
+		std::u8string Get() const
 		{
 			CheckDataStatus(SDT_FLAG_STR);
 			return m_str;
@@ -187,6 +224,8 @@ public:
 		}
 
 		std::u8string ToString() const;
+
+		DataType GetType() const;
 	protected:
 		DataType m_type;
 		union
@@ -200,6 +239,9 @@ public:
 		std::u8string m_str;
 	};
 
+	/**
+	 * @brief 行数据。实体。表数据读取到内存中用此组织。
+	 */
 	class Row
 	{
 	public:
@@ -216,6 +258,8 @@ public:
 		virtual Cell &operator[](int col);
 
 		const std::vector<Cell> &GetRawRef() const;
+
+		const std::wstring ToString() const;
 	protected:
 		std::vector<Cell> m_cells;
 		int m_cellCur = 0, m_cellCount;
@@ -241,6 +285,14 @@ public:
 		 */
 		virtual void ReadRow(Row& p_row, xybase::BinaryStream &p_dataStream, size_t limit);
 
+		/**
+		 * @brief 写入一行的数据
+		 * @param p_row 数据来源的对象
+		 * @param p_dataStream 要写入的数据流
+		 * @param p_offsetStream 要写入偏移的数据流
+		 */
+		virtual void WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStream, xybase::BinaryStream &p_offsetStream);
+
 		// TODO: Implement this!
 		// virtual void WriteRow(xybase::BinaryStream &p_dataStream, const Row &p_row);
 
@@ -250,29 +302,30 @@ public:
 		std::list<DataType> m_schema;
 	};
 
-	Schema &GetSchema();
-
+	/**
+	 * @brief 初始化时用，添加索引元数据
+	 * @param idx
+	 */
 	void AppendIndex(int idx);
 
+	/**
+	 * @brief 初始化时用，添加区块元数据
+	 * @param block
+	 */
 	void AppendBlock(const BlockInfo &block);
 
-	void LoadAll();
+	class Schema &GetSchema();
 
-	/**
-	 * @brief 载入指定行所在的整个区块（若已加载则忽略
-	 * @param row 要载入的行
-	 */
-	void LoadRow(int row);
+	class Cell &GetCell(int row, int col);
 
-	void UnloadAll();
-
-	Cell &GetCell(int row, int col);
-
-	Row &GetRow(int row);
+	class Row &GetRow(int row);
 
 	Row &operator[](int row);
 
+	std::wstring ToString() const;
+
 protected:
+	std::u8string m_param;
 	std::u8string m_name;
 	std::u8string m_mode;
 	std::u8string m_type;
@@ -289,5 +342,6 @@ protected:
 private:
 
 	void LoadBlock(const BlockInfo &p_block);
+	void SaveBlock(const BlockInfo &p_block);
 };
 

@@ -18,5 +18,46 @@
     <ClCompile Include="FFXIVClassicDatConsole.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SsdOperation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileScanner.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LocLite.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SsdViewer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RunAsAdmin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SsdOperation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileScanner.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LocLite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SsdViewer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="liteopt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RunAsAdmin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
