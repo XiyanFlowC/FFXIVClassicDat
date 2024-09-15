@@ -4,7 +4,7 @@
 
 CsvFile::CsvFile(std::wstring filePath, OperationType mode)
 {
-	m_stream = new xybase::BinaryStream(filePath, mode == OperationType::Append ? L"a" : (mode == OperationType::Read ? L"r" : L"w"));
+	m_stream = new xybase::BinaryStream(filePath, mode == OperationType::Append ? L"ab" : (mode == OperationType::Read ? L"rb" : L"wb"));
 	if (mode == OperationType::Read)
 	{
 		m_stream->Seek(0, xybase::Stream::SM_END);
@@ -50,6 +50,8 @@ std::u8string CsvFile::NextCell()
 					break;
 				else if (ch == '\n')
 					break;
+				else if (ch == '\r')
+					break;
 				else
 				{
 					throw xybase::RuntimeException(
@@ -61,13 +63,18 @@ std::u8string CsvFile::NextCell()
 
 			ch = m_stream->ReadUInt8();
 		}
-		printf("%llX\n", m_stream->Tell());
 	}
-	else while (ch != ',' && ch != '\n')
+	else while (ch != ',' && ch != '\n' && ch != '\r')
 	{
 		sb.Append(ch);
 
 		ch = m_stream->ReadUInt8();
+	}
+	if (ch == '\r')
+	{
+		ch = m_stream->ReadUInt8();
+		if (ch != '\n')
+			throw xybase::RuntimeException(std::format(L"无法理解的行尾格式。字符位置{}处。", m_stream->Tell()), 45003);
 	}
 
 	m_eolFlag = ch == '\n';
@@ -108,7 +115,15 @@ void CsvFile::NextLine()
 	if (!m_eolFlag)
 	{
 		int ch = m_stream->ReadUInt8();
-		while (ch != '\n') ch = m_stream->ReadUInt8();
+		while (ch != '\r' && ch != '\n') ch = m_stream->ReadUInt8();
+		if (ch == '\r')
+		{
+			ch = m_stream->ReadUInt8();
+			if (ch != '\n')
+			{
+				m_stream->Seek(-1, xybase::Stream::SM_CURRENT);
+			}
+		}
 	}
 	m_eolFlag = false;
 }
@@ -116,6 +131,7 @@ void CsvFile::NextLine()
 void CsvFile::NewLine()
 {
 	m_firstCellFlag = true;
+	m_stream->Write((uint8_t)'\r');
 	m_stream->Write((uint8_t)'\n');
 }
 

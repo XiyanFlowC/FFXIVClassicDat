@@ -117,6 +117,9 @@
     <ClCompile Include="CsvUtility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GameStringUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xybase\BinaryStream.h">
@@ -222,6 +225,9 @@
       <Filter>头文件\crypto</Filter>
     </ClInclude>
     <ClInclude Include="CsvUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GameStringUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

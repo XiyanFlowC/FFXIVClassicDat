@@ -57,7 +57,7 @@ void SsdOperation::ImportSheet(const std::filesystem::path &p_path, Sheet *p_she
     if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
     std::wcout << "Saving...";
     p_sheet->SaveAll();
-    std::wcout << "Exported.\n";
+    std::wcout << "Imported.\n";
 }
 
 void SsdOperation::ExportSsd(const std::filesystem::path &p_path, const SsdData &p_ssd, const std::u8string &p_sheet)
@@ -68,7 +68,7 @@ void SsdOperation::ExportSsd(const std::filesystem::path &p_path, const SsdData 
         ExportSheet(p_path, sheet);
     }
 
-    for (auto &&entry : p_ssd.GetAllSheets())
+    else for (auto &&entry : p_ssd.GetAllSheets())
     {
         if (entry->GetName() == u8"var_equip" || entry->GetName() == u8"var_wep") continue;
         ExportSheet(p_path, entry);
@@ -83,7 +83,7 @@ void SsdOperation::ImportSsd(const std::filesystem::path &p_path, const SsdData 
         ImportSheet(p_path, sheet);
     }
 
-    for (auto &&entry : p_ssd.GetAllSheets())
+    else for (auto &&entry : p_ssd.GetAllSheets())
     {
         if (entry->GetName() == u8"var_equip" || entry->GetName() == u8"var_wep") continue;
         ImportSheet(p_path, entry);
