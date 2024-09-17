@@ -19,6 +19,10 @@ public:
 
     void ExportAllSsd(const std::filesystem::path &p_path);
 
+    void ImportAllSsd(const std::filesystem::path &p_path);
+
+    bool m_fullExport = false;
+
     /**
      * @brief 导出Sqwt的SSD。这些是界面UI文字。
      */

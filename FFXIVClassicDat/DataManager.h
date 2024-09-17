@@ -40,6 +40,8 @@ public:
 
 	xybase::BinaryStream *NewDataStream(uint32_t p_id, const wchar_t *p_mode);
 
+	std::wstring BuildDataPath(uint32_t p_id);
+
 	void SaveData(uint32_t p_id, const BinaryData &p_data);
 };
 

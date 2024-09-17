@@ -23,6 +23,8 @@ void SsdOperation::ExportSheet(const std::filesystem::path &p_path, Sheet *p_she
     std::wcout << L"Loading...";
     try
     {
+        // 若需要完全导出，则不能忽略被enable禁用的项。且需要记录Enable
+        p_sheet->m_cfgIgnoreEnableIndication = m_fullExport;
         p_sheet->LoadAll();
     }
     catch (DataManager::FileMissingException &ex)
@@ -37,6 +39,12 @@ void SsdOperation::ExportSheet(const std::filesystem::path &p_path, Sheet *p_she
     std::wcout << "Outputing...";
     CsvFile csv(path.wstring(), CsvFile::OperationType::Write);
     p_sheet->SaveToCsv(csv);
+    if (m_fullExport)
+    {
+        std::wcout << "Enable Outputing...";
+        CsvFile enable(p_path / (p_sheet->GetName() + u8"_enable.csv"), CsvFile::OperationType::Write);
+        p_sheet->EnableToCsv(enable);
+    }
     std::wcout << "Exported.\n";
 }
 
@@ -51,8 +59,24 @@ void SsdOperation::ImportSheet(const std::filesystem::path &p_path, Sheet *p_she
     }
     std::wcout << L"Loading...";
     
-    CsvFile csv(path.wstring(), CsvFile::OperationType::Read);
-    p_sheet->LoadFromCsv(csv);
+    try
+    {
+        CsvFile csv(path.wstring(), CsvFile::OperationType::Read);
+        p_sheet->LoadFromCsv(csv);
+    }
+    catch (xybase::InvalidParameterException &ex)
+    {
+        std::wcerr << L"导入" << p_sheet->ToString() << L"发生错误。"
+            << ex.GetErrorCode() << ex.GetMessage() << std::endl;
+        return;
+    }
+    // 若存在Enable则需要导入
+    if (std::filesystem::exists(p_path / (p_sheet->GetName() + u8"_enable.csv")))
+    {
+        std::wcout << "Enable Updating...";
+        CsvFile enable((p_path / (p_sheet->GetName() + u8"_enable.csv")).wstring(), CsvFile::OperationType::Read);
+        p_sheet->EnableFromCsv(enable);
+    }
     
     if (!std::filesystem::exists(path.parent_path())) std::filesystem::create_directories(path.parent_path());
     std::wcout << "Saving...";
@@ -170,6 +194,32 @@ void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path)
 
             SsdData ssd(path, Config::GetInstance().GetLangName());
             ExportSsd(p_path, ssd);
+        }
+    }
+}
+
+void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path)
+{
+    if (!std::filesystem::exists("type.txt"))
+    {
+        std::wcout << "type.txt not found. Scan the data folder first.\n";
+        std::wcout << L"找不到 type.txt。请先扫描数据文件夹。\n";
+        return;
+    }
+
+    std::ifstream record("type.txt");
+
+    while (record)
+    {
+        std::string type;
+        std::filesystem::path path;
+        record >> type >> path;
+        if (type == "SSD")
+        {
+            std::ifstream f(path, std::ios::binary);
+
+            SsdData ssd(path, Config::GetInstance().GetLangName());
+            ImportSsd(p_path, ssd);
         }
     }
 }

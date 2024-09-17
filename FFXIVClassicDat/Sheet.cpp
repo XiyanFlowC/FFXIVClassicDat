@@ -278,21 +278,21 @@ void Sheet::Schema::WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStrea
 				if (formalType & SDT_FLAG_SIGNED)
 					p_dataStream.Write((int8_t) cell.Get<int>());
 				else
-					p_dataStream.Write((int8_t)cell.Get<unsigned int>());
+					p_dataStream.Write((uint8_t)cell.Get<unsigned int>());
 			}
 			else if (formalType & SDT_FLAG_16BIT)
 			{
 				if (formalType & SDT_FLAG_SIGNED)
 					p_dataStream.Write((int16_t)cell.Get<int>());
 				else
-					p_dataStream.Write((int16_t)cell.Get<unsigned int>());
+					p_dataStream.Write((uint16_t)cell.Get<unsigned int>());
 			}
 			else if (formalType & SDT_FLAG_32BIT)
 			{
 				if (formalType & SDT_FLAG_SIGNED)
 					p_dataStream.Write((int32_t)cell.Get<int>());
 				else
-					p_dataStream.Write((int32_t)cell.Get<unsigned int>());
+					p_dataStream.Write((uint32_t)cell.Get<unsigned int>());
 			}
 			else abort();
 		}
@@ -484,6 +484,69 @@ void Sheet::SaveAll()
 	}
 }
 
+void Sheet::EnableToCsv(CsvFile &p_csv) const
+{
+	for (auto &&block : m_blocks)
+	{
+		p_csv.NewCell(u8"[block]");
+		p_csv.NewCell(xybase::string::itos<char8_t>(block.begin));
+		p_csv.NewLine();
+		
+		try
+		{
+			auto enableRaw = DataManager::GetInstance().LoadData(block.enable);
+			struct EnableEntry { uint32_t index; uint32_t count; };
+			EnableEntry *enable = (EnableEntry *)enableRaw.GetData();
+			assert(!(enableRaw.GetLength() & 0x7));
+			int count = enableRaw.GetLength() / 8;
+
+			for (int i = 0; i < count; ++i)
+			{
+				p_csv.NewCell(xybase::string::itos<char8_t>(enable[i].index));
+				p_csv.NewCell(xybase::string::itos<char8_t>(enable[i].count));
+				p_csv.NewLine();
+			}
+		}
+		catch (DataManager::FileMissingException &ex)
+		{
+			std::wcerr << L"处理" << ToString() << "的启用信息发生异常：" << std::endl;
+			std::wcerr << std::format(L"块{}[{}]指定的启用信息{:08X}不存在。\n", block.begin, block.count, block.enable);
+		}
+	}
+}
+
+void Sheet::EnableFromCsv(CsvFile &p_csv)
+{
+	xybase::BinaryStream *enableStream = nullptr;
+	while (!p_csv.IsEof())
+	{
+		std::u8string first = p_csv.NextCell();
+		if (first == u8"[block]")
+		{
+			if (enableStream) delete enableStream;
+			enableStream = nullptr;
+			int begin = xybase::string::stoi<char8_t>(p_csv.NextCell());
+			for (const BlockInfo &info : m_blocks)
+			{
+				if (info.begin == begin)
+				{
+					enableStream = DataManager::GetInstance().NewDataStream(info.enable, L"wb");
+				}
+			}
+			if (enableStream == nullptr)
+				throw xybase::InvalidParameterException(L"p_csv", L"Not an enable file for this sheet!", 53648);
+			p_csv.NextLine();
+			continue;
+		}
+		
+		uint32_t begin = xybase::string::stoi<char8_t>(first);
+		uint32_t count = xybase::string::stoi<char8_t>(p_csv.NextCell());
+		enableStream->Write(begin);
+		enableStream->Write(count);
+	}
+	if (enableStream) delete enableStream;
+}
+
 Sheet::Cell &Sheet::GetCell(int row, int col)
 {
 	return GetRow(row).GetCell(col);
@@ -531,7 +594,7 @@ std::wstring Sheet::ToString() const
 
 inline uint32_t GetBeginingOffset(uint32_t *offset, int idx, size_t length)
 {
-	assert(idx < length);
+	if (idx >= length) throw xybase::InvalidParameterException(L"idx", L"Index out of range!", 58010);
 	return idx == 0 ? 0 : offset[idx - 1];
 	// return offset[idx];
 }
@@ -556,10 +619,13 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 	{
 		for (int i = 0; i < p_block.count; ++i)
 		{
-			data->Seek(GetBeginingOffset(offsets, i, offsetCount));
+			if (i >= offsetCount) break;
+			assert(GetBeginingOffset(offsets, i, offsetCount) == data->Tell());
+			//data->Seek(GetBeginingOffset(offsets, i, offsetCount));
+			if (offsets[i] == data->Tell()) continue;
 			Sheet::Row row(m_columnCount, m_indices);
 			m_schema.ReadRow(row, *data, offsets[i]);
-			m_rows.insert(std::make_pair(i, std::move(row)));
+			m_rows.insert(std::make_pair(p_block.begin + i, std::move(row)));
 			assert(data->Tell() == offsets[i]);
 		}
 	}
@@ -570,6 +636,8 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 			for (int j = 0; j < enableEntries[i].cnt; ++j)
 			{
 				int idx = enableEntries[i].idx + j;
+				
+				if (idx - p_block.begin >= offsetCount) break;
 				data->Seek(GetBeginingOffset(offsets, idx - p_block.begin, offsetCount));
 				Sheet::Row row(m_columnCount, m_indices);
 				try
@@ -597,23 +665,57 @@ void Sheet::SaveBlock(const BlockInfo &p_block)
 	xybase::BinaryStream *offsetStream = DataManager::GetInstance().NewDataStream(p_block.offset, L"wb");
 	xybase::BinaryStream *dataStream = DataManager::GetInstance().NewDataStream(p_block.data, L"wb");
 
+	xybase::BinaryStream *enableStream = nullptr;
+	// 若已有enable则不要干涉
+	// 总之重新生成
+	// if (!std::filesystem::exists(DataManager::GetInstance().BuildDataPath(p_block.enable)))
+		enableStream = DataManager::GetInstance().NewDataStream(p_block.enable, L"wb");
+
 	// 不需要获取Enable，没有载入的部分自动跳过
 	/*BinaryData enable = DataManager::GetInstance().LoadData(p_block.enable);
 	assert(!(enable.GetLength() & 0x7));
 	struct EnableEntry { uint32_t idx; uint32_t cnt; } *enableEntries = (EnableEntry *)enable.GetData();
 	int enableEntriesCount = enable.GetLength() / 8;*/
 
-	for (int i = 0; i < p_block.count; ++i)
+	uint32_t continousCounter = 0, begin = p_block.begin;
+	int max = p_block.count;
+	for (; max > 0; --max)
+	{
+		if (m_rows.find(p_block.begin + max) != m_rows.end())
+		{
+			++max;
+			break;
+		}
+	}
+
+	for (int i = 0; i < max; ++i)
 	{
 		auto rowItr = m_rows.find(p_block.begin + i);
 		if (rowItr == m_rows.end())
 		{
 			offsetStream->Write((uint32_t)dataStream->Tell());
+
+			if (enableStream && continousCounter)
+			{
+				enableStream->Write(begin);
+				enableStream->Write(continousCounter);
+			}
+			begin = p_block.begin + i + 1;
+			continousCounter = 0;
 			continue;
 		}
+		continousCounter++;
 		m_schema.WriteRow(rowItr->second, *dataStream, *offsetStream);
+	}
+
+	if (enableStream && continousCounter)
+	{
+		enableStream->Write(begin);
+		enableStream->Write(continousCounter);
 	}
 
 	delete offsetStream;
 	delete dataStream;
+	if (enableStream)
+		delete enableStream;
 }

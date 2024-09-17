@@ -98,6 +98,18 @@ public:
 	 */
 	void SaveAll();
 
+	/**
+	 * @brief 保存此表的Enable项到Csv文件中
+	 * @param p_csv 
+	 */
+	void EnableToCsv(CsvFile &p_csv) const;
+
+	/**
+	 * @brief 从Csv文件中读取此表的Enable
+	 * @param p_csv 
+	 */
+	void EnableFromCsv(CsvFile &p_csv);
+
 	/* 成员类定义 */
 
 	/**

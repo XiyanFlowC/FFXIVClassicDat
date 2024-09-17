@@ -90,6 +90,7 @@ Action action = ACT_INVALID;
 
 uint32_t ssdTarget = 0;
 std::u8string sheetName;
+bool fullExport = false;
 
 int main(int argc, const char ** argv)
 {
@@ -138,6 +139,10 @@ int main(int argc, const char ** argv)
         sheetName = xybase::string::to_utf8(para);
         return 0;
         });
+    lopt_regopt("full-export", '\0', 0, [](const char *para) ->int {
+        fullExport = true;
+        return 0;
+        });
     lopt_regopt("help", '?', 0, help);
 
 
@@ -162,6 +167,7 @@ int main(int argc, const char ** argv)
         DataManager::GetInstance().m_basePath = Config::GetInstance().GetGamePath() / "data";
         FileScanner fs;
         SsdOperation so;
+        so.m_fullExport = fullExport;
         switch (action)
         {
         case ACT_INVALID:
@@ -204,11 +210,14 @@ int main(int argc, const char ** argv)
             return EACCES;
         }
         else std::wcerr << L"发生了异常。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
+        exit(ex.GetErrorCode());
     }
 #ifdef NDEBUG
     catch (xybase::RuntimeException &ex)
     {
         std::wcerr << L"发生了异常。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
+        std::cin.get();
+        exit(ex.GetErrorCode());
     }
 #endif
     
@@ -219,6 +228,8 @@ int main(int argc, const char ** argv)
     //std::cout << "debug SSD" << std::endl;
     //ent = exportBase / "debug" / LANG;
     //exportSsd(ent, debugSsd);
+
+    return 0;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

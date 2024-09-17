@@ -26,6 +26,8 @@ protected:
 
     int IsGtex(BinaryData &bd);
 
+    int IsVers(BinaryData &bd);
+
     void FileDetect(std::ofstream &recorder, const std::filesystem::directory_entry &ent);
 };
 

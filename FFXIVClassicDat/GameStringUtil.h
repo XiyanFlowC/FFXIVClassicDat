@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
 class GameStringUtil
 {
@@ -28,7 +29,7 @@ class GameStringUtil
         IfEquals = 0x0C,
         Unknown0A = 0x0A,     // TODO
         LineBreak = 0x10,
-        Wait            = 0x11, // Not present anywhere in game data up to 2015.04.17.0001.0000
+        Wait = 0x11, // Not present anywhere in game data up to 2015.04.17.0001.0000
 
         Gui = 0x12,
         Color = 0x13,
@@ -63,13 +64,28 @@ class GameStringUtil
         Unknown60 = 0x60,     // TODO: Used as prefix in Gold Saucer announcements.
 	};
 
+    struct TagDefinition
+    {
+        const char8_t *name;
+        std::function<void(GameStringUtil &, int, int, void *)> parser;
+        int paramNum;
+        int paramMax;
+        Tag tag;
+    };
+
+    static TagDefinition defs;
+
 public:
-	static std::u8string Escape(std::u8string_view p_str);
+	std::u8string Decode(std::u8string_view p_str);
 
-	static std::u8string ProcessTag(const char8_t tag, std::u8string_view p_str, int &pos);
+	std::u8string ProcessTag(const char8_t tag);
 
-	static std::u8string Parse(std::u8string_view p_str);
+	std::u8string Encode(std::u8string_view p_str);
 
-	static std::u8string ParseTag(std::u8string_view p_tag);
+	std::u8string ParseTag(std::u8string_view p_tag);
+
+protected:
+    int m_pos;
+    std::u8string_view m_str;
 };
 
