@@ -22,6 +22,7 @@ public:
     void ImportAllSsd(const std::filesystem::path &p_path);
 
     bool m_fullExport = false;
+    bool m_recursive = true;
 
     /**
      * @brief 导出Sqwt的SSD。这些是界面UI文字。

@@ -25,6 +25,11 @@ public:
 	void AppendSheetDetermined(const std::u8string &sheetName, Sheet *sheet);
 
 	std::list<Sheet *> GetAllSheets() const;
+
+	/**
+	 * @brief 指示是否可以解析 infofile 属性。若为 false 则忽略 infofile。
+	 */
+	bool m_recursive = true;
 private:
 	void ParseRaptureSsdData(uint32_t id);
 

@@ -13,8 +13,7 @@
 class CsvFile;
 
 /**
- * @brief Sheet 是存储在data种的一类dat。这里是infofile的解析。
- * infofile规定了Sheet的schema，并指定了实际数据的存储位置等控制信息。
+ * @brief Sheet 是存储在data中的一类dat。这里是实际Sheet数据（enable offset 和 data）的解析和保存。
  * Sheet由Ssd文件所定义。
  */
 class Sheet

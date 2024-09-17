@@ -188,7 +188,8 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 			// 引用其他的文件
 			if (infoFile != u"")
 			{
-				ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
+				if (m_recursive)
+					ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
 				continue;
 			}
 

@@ -10,6 +10,8 @@ class GameStringUtil
 
     // The tag types (enum Tag) grabed from SaintCoinach
     // From https://github.com/xivapi/SaintCoinach/blob/35b1060e65ca0e18ad915a1c308f0e5f37a2bbd3/SaintCoinach/Text/TagType.cs
+    // Also ffxiv-classic-text-dump
+    // https://github.com/transparentmask/ffxiv-classic-text-dump/blob/master/tag_type.py
 	enum Tag : char8_t
 	{
         None = 0x00,
@@ -33,7 +35,7 @@ class GameStringUtil
 
         Gui = 0x12,
         Color = 0x13,
-        Unknown14 = 0x14,     // TODO
+        Color2 = 0x14,     // TODO
         SoftHyphen = 0x16,
         Unknown17 = 0x17,     // TODO: Used exclusively in Japanese and at start of new lines.
         Emphasis2 = 0x19,     // TODO: See if this is bold, only used very little. 0x1A emphasis is italic.
@@ -56,6 +58,8 @@ class GameStringUtil
         SheetEn = 0x31,
         SheetDe = 0x32,
         SheetFr = 0x33,
+        SheetChs = 0x34,
+        SheetCht = 0x35,
         InstanceContent = 0x40,     // Presumably so it can be clicked?
         UIForeground = 0x48,
         UIGlow = 0x49,

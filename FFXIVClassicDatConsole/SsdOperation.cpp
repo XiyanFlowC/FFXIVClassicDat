@@ -193,6 +193,8 @@ void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path)
             std::ifstream f(path, std::ios::binary);
 
             SsdData ssd(path, Config::GetInstance().GetLangName());
+            // 禁止载入子项，避免重复操作
+            ssd.m_recursive = false;
             ExportSsd(p_path, ssd);
         }
     }
@@ -219,6 +221,8 @@ void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path)
             std::ifstream f(path, std::ios::binary);
 
             SsdData ssd(path, Config::GetInstance().GetLangName());
+            // 禁止载入子项，避免重复操作
+            ssd.m_recursive = false;
             ImportSsd(p_path, ssd);
         }
     }

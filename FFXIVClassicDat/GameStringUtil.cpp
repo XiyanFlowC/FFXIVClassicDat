@@ -43,7 +43,7 @@ std::u8string GameStringUtil::Decode(std::u8string_view p_str)
 	return sb.ToString();
 }
 
-std::u8string GameStringUtil::ProcessTag(const char8_t tag, std::u8string_view p_str, int &pos)
+std::u8string GameStringUtil::ProcessTag(const char8_t tag)
 {
 	xybase::StringBuilder sb;
 
