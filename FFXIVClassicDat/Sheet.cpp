@@ -11,6 +11,7 @@
 #include "xybase/xystring.h"
 #include "SimpleString.h"
 #include "CsvUtility.h"
+#include "GameStringUtil.h"
 
 Sheet::Sheet(const std::u8string &name, int columnMax, int columnCount, int cache, const std::u8string &type, const std::u8string &lang, const std::u8string &param)
 	: m_name(name), m_columnCount(columnCount), m_columnMax(columnMax), m_cache(cache), m_type(type), m_lang(lang), m_param(param)
@@ -51,14 +52,17 @@ void Sheet::SaveToCsv(CsvFile &p_csv) const
 	}
 	p_csv.NewLine();
 
-
+	GameStringUtil gs;
 	for (auto &pair : m_rows)
 	{
 		p_csv.NewCell(xybase::string::itos<char8_t>(pair.first));
 		for (auto &&cell : pair.second.GetRawRef())
 		{
 			if (cell.GetType() == SDT_INVALID) break;
-			p_csv.NewCell(cell.ToString());
+			if (cell.GetType() == SDT_STR)
+				p_csv.NewCell(gs.Decode(cell.ToString()));
+			else
+				p_csv.NewCell(cell.ToString());
 		}
 		p_csv.NewLine();
 	}
