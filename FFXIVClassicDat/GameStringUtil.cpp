@@ -61,9 +61,9 @@ std::u8string GameStringUtil::Decode(std::string_view p_str)
 				m_sb += u8"\\,";*/
 			else if (ch == '"')
 				m_sb += "\\\"";
-			else if (ch < 0x20 || ch == 0x7F)
+			else if ((ch > 0 && ch < 0x20) || ch == 0x7F)
 			{
-				sprintf((char *)buf, "\\x%02X", ch);
+				sprintf((char *)buf, "\\x%02X", ch & 0xFF);
 				m_sb += buf;
 			}
 			else
@@ -257,7 +257,7 @@ long long GameStringUtil::DecodeInteger(std::string_view p_str, int &p_outLength
 		return DecodeMultibyteInteger(p_str, p_outLength);
 	}
 	p_outLength = 1;
-	return p_str[0] - 1;
+	return (uint8_t)p_str[0] - 1;
 }
 
 std::string GameStringUtil::EncodeInteger(long long p_in)
@@ -513,6 +513,11 @@ std::string GameStringUtil::ParseTag()
 
 std::string GameStringUtil::ParseParameter()
 {
+	if (m_str[m_pos] == ')')
+	{
+		m_pos++;
+		return "";
+	}
 	xybase::StringBuilder sb;
 	while (m_pos < m_str.size())
 	{
@@ -852,7 +857,7 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 	else
 	{
 		m_sb += '#';
-		m_sb += xybase::string::itos(p_val[0] - 1);
+		m_sb += xybase::string::itos((uint8_t)p_val[0] - 1);
 		p_outLength = 1;
 	}
 }
