@@ -132,29 +132,11 @@ class GameStringUtil
 
         static bool IsString(const char8_t type);
 
-        enum ExpressionType
-        {
-            OP_GE,
-            OP_GT,
-            OP_LE,
-            OP_LT,
-            OP_NEQ,
-            OP_EQ,
-
-            VAR_INT,
-            VAR_PLAYER,
-            VAR_STR,
-            VAR_OBJ,
-            VAR_RESEVED,
-
-            VAL_INT,
-            VAL_STR,
-        };
-
 public:
 	std::u8string Decode(std::u8string_view p_str);
 
 	std::u8string Encode(std::u8string_view p_str);
+    std::u8string Parse(std::u8string_view p_str);
 
 protected:
 
@@ -170,7 +152,9 @@ protected:
 
     static bool IsVariable(const char8_t type);
 
-	void ParseTag(std::u8string_view p_tag);
+    std::u8string EncodeString();
+
+	std::u8string ParseTag();
 
 	void DecodeTag(const char8_t tag);
 
@@ -179,10 +163,6 @@ protected:
     void DecodeValue(std::u8string_view p_val, int &p_outLength);
 
 
-
-    void DecodeTagUIntParam(std::u8string_view data, void *);
-
-    void DecodeTagIf(std::u8string_view data, void *);
 
     xybase::StringBuilder<char8_t> m_sb;
     int m_pos;

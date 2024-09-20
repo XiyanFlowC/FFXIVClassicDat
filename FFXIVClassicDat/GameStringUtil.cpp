@@ -26,6 +26,11 @@ GameStringUtil::TagDefinition GameStringUtil::defs[] =
 	{u8"Format", 1, 255, Tag::Format},
 	{u8"Clickable", 1, 255, Tag::Clickable},
 	{u8"Split", 1, 255, Tag::Split},
+	{u8"Emphasis", 1, 255, Tag::Emphasis},
+	{u8"Time", 1, 255, Tag::Time},
+	{u8"Indent", 1, 255, Tag::Indent},
+	{u8"Dash", 1, 255, Tag::Dash},
+	{u8"TwoDigitValue", 1, 255, Tag::TwoDigitValue},
 	{nullptr, 0, 0, GameStringUtil::Tag::None},
 };
 
@@ -52,8 +57,10 @@ std::u8string GameStringUtil::Decode(std::u8string_view p_str)
 				m_sb += u8"\\<";
 			else if (ch == '>')
 				m_sb += u8"\\>";
-			/*else if (ch == '"')
-				m_sb += u8"\\\"";*/
+			/*else if (ch == ',')
+				m_sb += u8"\\,";*/
+			else if (ch == '"')
+				m_sb += u8"\\\"";
 			else if (ch < 0x20 || ch == 0x7F)
 			{
 				sprintf((char *)buf, "\\x%02X", ch);
@@ -65,6 +72,56 @@ std::u8string GameStringUtil::Decode(std::u8string_view p_str)
 	}
 
 	return m_sb.ToString();
+}
+
+std::u8string GameStringUtil::Encode(std::u8string_view p_str)
+{
+	m_sb.Clear();
+	m_pos = 0;
+	m_str = p_str;
+
+	while (m_pos < m_str.size())
+	{
+		char8_t ch = m_str[m_pos++];
+		if (ch == '<')
+		{
+			m_sb += ParseTag();
+		}
+		else
+		{
+			if (ch == '\\')
+			{
+				ch = m_str[m_pos++];
+				if (ch == 'n')
+				{
+					m_sb += '\n';
+				}
+				else if (ch == 'r')
+				{
+					m_sb += '\r';
+				}
+				else if (ch == 't')
+				{
+					m_sb += '\t';
+				}
+				else if (ch == 'x')
+				{
+					m_sb += xybase::string::stoi<char8_t>(std::u8string{ m_str.substr(m_pos, 2) });
+					m_pos += 2;
+				}
+				else
+					m_sb += ch;
+			}
+			else m_sb += ch;
+		}
+	}
+
+	return m_sb.ToString();
+}
+
+std::u8string GameStringUtil::Parse(std::u8string_view p_str)
+{
+	return Encode(p_str);
 }
 
 long long GameStringUtil::DecodeMultibyteInteger(std::u8string_view p_str, int &p_outLength)
@@ -199,16 +256,16 @@ long long GameStringUtil::DecodeInteger(std::u8string_view p_str, int &p_outLeng
 		return DecodeMultibyteInteger(p_str, p_outLength);
 	}
 	p_outLength = 1;
-	return p_str[0];
+	return p_str[0] - 1;
 }
 
 std::u8string GameStringUtil::DecodeString(std::u8string_view p_str, int &p_outLength)
 {
 	int step;
 	int length = DecodeInteger(p_str, step);
-	p_outLength = length;
+	p_outLength = step + length;
 	GameStringUtil gs;
-	return gs.Decode(p_str.substr(step, length - step));
+	return u8'<' + gs.Decode(p_str.substr(step, length)) + u8'>';
 }
 
 long long GameStringUtil::ReadInteger()
@@ -222,7 +279,7 @@ long long GameStringUtil::ReadInteger()
 		m_pos += step;
 		return ret;
 	}
-	return m_str[m_pos++];
+	return m_str[m_pos++] - 1;
 }
 
 bool GameStringUtil::IsLeadingFlag(const char8_t type)
@@ -235,15 +292,60 @@ bool GameStringUtil::IsVariable(const char8_t type)
 	return IsOperator(type) || IsParameterVariable(type) || IsTimeVariable(type);
 }
 
+std::u8string GameStringUtil::EncodeString()
+{
+	char8_t ch = m_str[m_pos++];
+	char8_t end = m_str.find_first_of(',', m_pos);
+	if (ch == '<')
+	{
+		int layer = 0;
+		int p = m_pos;
+
+		while ((1))
+		{
+			if (m_str[p] == '>')
+			{
+				if (layer == 0) break;
+				--layer, ++p;
+			}
+			else if (m_str[p] == '<')
+			{
+				++layer, ++p;
+			}
+			else if (m_str[p] == '\\')
+			{
+				if (m_str[++p] == 'x') p += 2;
+			}
+			else ++p;
+		}
+		end = p;
+	}
+
+	m_pos = end + 1;
+	return ch + std::u8string(m_str.substr(m_pos, end - m_pos));
+}
+
+std::u8string GameStringUtil::ParseTag()
+{
+	// 获取Tag
+	size_t eot = m_str.find_first_of('(', m_pos);
+	if (eot == std::u8string_view::npos) throw xybase::InvalidParameterException(L"m_str", L"Invalid tag start!", 126701);
+	std::u8string_view tag = m_str.substr(m_pos, eot - m_pos);
+
+
+
+	// 为读取参数做好准备
+	m_pos = eot + 1;
+}
+
 void GameStringUtil::DecodeTag(const char8_t tag)
 {
 	TagDefinition *def = defs;
 
 	int step;
 	long long tagLength = DecodeInteger(m_str.substr(m_pos, 5), step);
-	if (step == 1) tagLength--;
 	m_pos += step;
-		
+
 	std::u8string_view param(m_str.substr(m_pos, tagLength)); /* omit terminator */
 
 	if (m_str.size() <= m_pos + tagLength)
@@ -254,7 +356,7 @@ void GameStringUtil::DecodeTag(const char8_t tag)
 	{
 		throw xybase::InvalidParameterException(L"m_str", L"No terminator found.", 119251);
 	}
-	
+
 	m_pos += tagLength + 1; // prepare for next read
 
 	while (def->name)
@@ -281,7 +383,7 @@ void GameStringUtil::DecodeTag(const char8_t tag)
 
 		++def;
 	}
-	
+
 	m_sb += u8"<Unknown_";
 	m_sb += xybase::string::itos<char8_t>(tag, 16);
 	m_sb += '(';
@@ -439,7 +541,7 @@ void GameStringUtil::DecodeValue(std::u8string_view p_val, int &p_outLength)
 	else
 	{
 		m_sb += '#';
-		m_sb += xybase::string::itos<char8_t>(p_val[0]);
+		m_sb += xybase::string::itos<char8_t>(p_val[0] - 1);
 		p_outLength = 1;
 	}
 }

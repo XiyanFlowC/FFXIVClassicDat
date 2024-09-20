@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SqwtDec", "SqwtDec\SqwtDec.
 		{68701295-AAE5-4634-B74D-6AEC47305AD9} = {68701295-AAE5-4634-B74D-6AEC47305AD9}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{66F4F3B7-5954-48B7-864F-B53AF3A674CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -60,6 +62,14 @@ Global
 		{72FDC4AF-9F77-4FFD-8F05-7CE369F2AAC2}.Release|x64.Build.0 = Release|x64
 		{72FDC4AF-9F77-4FFD-8F05-7CE369F2AAC2}.Release|x86.ActiveCfg = Release|Win32
 		{72FDC4AF-9F77-4FFD-8F05-7CE369F2AAC2}.Release|x86.Build.0 = Release|Win32
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Debug|x64.ActiveCfg = Debug|x64
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Debug|x64.Build.0 = Debug|x64
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Debug|x86.ActiveCfg = Debug|Win32
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Debug|x86.Build.0 = Debug|Win32
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Release|x64.ActiveCfg = Release|x64
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Release|x64.Build.0 = Release|x64
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Release|x86.ActiveCfg = Release|Win32
+		{66F4F3B7-5954-48B7-864F-B53AF3A674CF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
