@@ -184,7 +184,7 @@ public:
 		}
 
 		template<>
-		std::u8string Get() const
+		std::string Get() const
 		{
 			CheckDataStatus(SDT_FLAG_STR);
 			return m_str;
@@ -222,19 +222,19 @@ public:
 		}
 
 		template<>
-		void Set(std::u8string_view value)
+		void Set(std::string_view value)
 		{
 			CheckDataStatus(SDT_FLAG_STR);
 			m_str = value;
 		}
 
-		void SetString(std::u8string_view value)
+		void SetString(std::string_view value)
 		{
 			CheckDataStatus(SDT_FLAG_STR);
 			m_str = value;
 		}
 
-		std::u8string ToString() const;
+		std::string ToString() const;
 
 		DataType GetType() const;
 	protected:
@@ -247,7 +247,7 @@ public:
 			bool b_val;
 		} m_plainValue;
 
-		std::u8string m_str;
+		std::string m_str;
 	};
 
 	/**

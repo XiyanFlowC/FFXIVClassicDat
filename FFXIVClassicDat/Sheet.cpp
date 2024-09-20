@@ -62,7 +62,7 @@ void Sheet::SaveToCsv(CsvFile &p_csv) const
 			if (cell.GetType() == SDT_STR)
 				p_csv.NewCell(gs.Decode(cell.ToString()));
 			else
-				p_csv.NewCell(cell.ToString());
+				p_csv.NewCell((char8_t *)cell.ToString().c_str());
 		}
 		p_csv.NewLine();
 	}
@@ -87,6 +87,7 @@ void Sheet::LoadFromCsv(CsvFile &p_csv)
 		}
 	p_csv.NextLine();
 
+	GameStringUtil gsu;
 	while (!p_csv.IsEof())
 	{
 		Row row(m_columnCount, m_indices);
@@ -114,7 +115,7 @@ void Sheet::LoadFromCsv(CsvFile &p_csv)
 			}
 			else if (type & SDT_FLAG_STR)
 			{
-				cell.SetString(p_csv.NextCell());
+				cell.SetString(gsu.Encode(p_csv.NextCell().c_str()));
 			}
 			else abort();
 			row.AppendCell(cell);
@@ -251,7 +252,7 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size
 			SimpleString ss;
 			int actualLength = ss.Decrypt(str, length, str, length);
 			if (actualLength < 0) actualLength = length;
-			cell.SetString((char8_t *)str);
+			cell.SetString(str);
 
 			delete[] str;
 		}
@@ -323,7 +324,7 @@ void Sheet::Schema::WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStrea
 		}
 		else if (formalType & SDT_FLAG_STR)
 		{
-			auto str = cell.Get<std::u8string>();
+			auto str = cell.Get<std::string>();
 			int length = str.length() + 1;
 			p_dataStream.Write((uint16_t)length);
 			p_dataStream.Write((char *)str.c_str(), length);
@@ -379,27 +380,27 @@ const Sheet::Cell &Sheet::Cell::operator=(const Cell &p_rval)
 	return *this;
 }
 
-inline std::u8string Sheet::Cell::ToString() const
+inline std::string Sheet::Cell::ToString() const
 {
 	if (m_type & SDT_FLAG_INTEGER)
 	{
 		if (m_type & SDT_FLAG_SIGNED)
 		{
 			if (m_plainValue.i_val < 0)
-				return u8"-" + xybase::string::itos<char8_t>(-m_plainValue.i_val);
+				return "-" + xybase::string::itos<char>(-m_plainValue.i_val);
 			else
-				return xybase::string::itos<char8_t>(m_plainValue.i_val);
+				return xybase::string::itos<char>(m_plainValue.i_val);
 		}
 		else
-			return xybase::string::itos<char8_t>(m_plainValue.u_val);
+			return xybase::string::itos<char>(m_plainValue.u_val);
 	}
 	else if (m_type & SDT_FLAG_BOOL)
 	{
-		return m_plainValue.b_val ? u8"true" : u8"false";
+		return m_plainValue.b_val ? "true" : "false";
 	}
 	else if (m_type & SDT_FLAG_FLOAT)
 	{
-		return (char8_t *)std::to_string(m_plainValue.f_val).c_str();
+		return std::to_string(m_plainValue.f_val);
 	}
 	else if (m_type & SDT_FLAG_STR)
 	{
@@ -407,7 +408,7 @@ inline std::u8string Sheet::Cell::ToString() const
 	}
 	else if (m_type == SDT_INVALID)
 	{
-		return u8"";
+		return "";
 	}
 }
 
