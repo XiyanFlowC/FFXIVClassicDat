@@ -122,6 +122,9 @@ void Sheet::LoadFromCsv(CsvFile &p_csv)
 			else abort();
 			row.AppendCell(cell);
 		}
+		// 為確保從CSV中取得的數據覆蓋舊有的的數據。
+		auto exists = m_rows.find(rowId);
+		if (exists != m_rows.end()) m_rows.erase(exists);
 		m_rows.insert(std::make_pair(rowId, std::move(row)));
 		p_csv.NextLine();
 	}
