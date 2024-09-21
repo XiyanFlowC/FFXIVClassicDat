@@ -90,7 +90,7 @@ Action action = ACT_INVALID;
 
 uint32_t ssdTarget = 0;
 std::u8string sheetName;
-bool fullExport = false;
+bool fullExport = false, update = false;
 
 int main(int argc, const char ** argv)
 {
@@ -143,6 +143,10 @@ int main(int argc, const char ** argv)
         fullExport = true;
         return 0;
         });
+    lopt_regopt("update", 'U', 0, [](const char *para) ->int {
+        update = true;
+        return 0;
+        });
     lopt_regopt("help", '?', 0, help);
 
 
@@ -167,6 +171,7 @@ int main(int argc, const char ** argv)
         DataManager::GetInstance().m_basePath = Config::GetInstance().GetGamePath() / "data";
         FileScanner fs;
         SsdOperation so;
+        so.m_update = update;
         so.m_fullExport = fullExport;
         switch (action)
         {
@@ -179,9 +184,10 @@ int main(int argc, const char ** argv)
             so.DecryptSsd();
             break;
         case ACT_EXPORT_SHEETS:
-            so.ExportAllSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName());
+            so.ExportAllSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName(), sheetName);
             break;
         case ACT_IMPORT_SHEETS:
+            so.ImportAllSsd(Config::GetInstance().GetWorkAreaPath() / "sheet" / Config::GetInstance().GetLangName(), sheetName);
             break;
         case ACT_EXPORT_SPECIFIED_SSD:
         {

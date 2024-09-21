@@ -17,12 +17,13 @@ public:
 
     void DecryptSsd();
 
-    void ExportAllSsd(const std::filesystem::path &p_path);
+    void ExportAllSsd(const std::filesystem::path &p_path, const std::u8string &p_sheet = u8"");
 
-    void ImportAllSsd(const std::filesystem::path &p_path);
+    void ImportAllSsd(const std::filesystem::path &p_path, const std::u8string &p_sheet = u8"");
 
     bool m_fullExport = false;
     bool m_recursive = true;
+    bool m_update = false;
 
     /**
      * @brief 导出Sqwt的SSD。这些是界面UI文字。

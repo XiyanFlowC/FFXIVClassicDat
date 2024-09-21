@@ -28,6 +28,7 @@ GameStringUtil::TagDefinition GameStringUtil::defs[] =
 	{u8"Split", 1, 255, Tag::Split},
 	{u8"Emphasis", 1, 255, Tag::Emphasis},
 	{u8"Time", 1, 255, Tag::Time},
+	{u8"Time2", 1, 255, Tag::Time2},
 	{u8"Indent", 1, 255, Tag::Indent},
 	{u8"Dash", 1, 255, Tag::Dash},
 	{u8"TwoDigitValue", 1, 255, Tag::TwoDigitValue},
@@ -494,7 +495,8 @@ std::string GameStringUtil::ParseTag()
 
 				if (m_str[m_pos] != '>') 
 					throw xybase::InvalidParameterException(L"m_str[eot]",
-						std::format(L"Tag terminator '>' expected, but found {}", (char)m_str[m_pos]), 126703);
+						std::format(L"Tag terminator '>' expected, but found {}. (Near {})", (char)m_str[m_pos], 
+							xybase::string::to_wstring(std::string(m_str.substr(std::max(m_pos - 16, 0), 32)))), 126703);
 				m_pos++;
 
 				ret += EncodeInteger(param.size());
@@ -603,7 +605,7 @@ std::string GameStringUtil::ParseVariable()
 	{
 		auto pend = m_str.find_first_of(')', m_pos);
 		auto type = m_str.substr(m_pos, pend - m_pos);
-		m_pos = end;
+		m_pos = pend;
 		if (type == "msec")
 			ret += TimeMilliSecond;
 		else if (type == "sec")
@@ -650,7 +652,7 @@ std::string GameStringUtil::ParseVariable()
 	
 	if (m_str[m_pos++] != ')')
 		throw xybase::InvalidParameterException(L"category",
-			std::format(L"Unknown category {}", xybase::string::to_wstring(std::string(category))), 60802);
+			std::format(L"Expected ')', but got {}", m_str[m_pos - 1]), 60802);
 	return ret;
 }
 
@@ -816,36 +818,24 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 		}
 		else if (IsParameterVariable(p_val[0]))
 		{
-			if (IsStringVariable(p_val[0]))
+			switch (p_val[0])
 			{
-				if (p_val[0] == StringParameter)
-				{
-					m_sb += "$str(";
-				}
-				else
-				{
-					m_sb += "$obj(";
-				}
-				// m_sb += DecodeString(p_param.substr(p), step);
-				DecodeValue(p_val.substr(1), step);
-				m_sb += ')';
-				p_outLength = 1 + step;
+			case StringParameter:
+				m_sb += "$str(";
+				break;
+			case ObjectParameter:
+				m_sb += "$obj(";
+				break;
+			case IntegerParameter:
+				m_sb += "$int(";
+				break;
+			case PlayerParameter:
+				m_sb += "$plyr(";
+				break;
 			}
-			else
-			{
-				switch ((ParameterVariable)p_val[0])
-				{
-				case IntegerParameter:
-					m_sb += "$int(";
-					break;
-				case PlayerParameter:
-					m_sb += "$plyr(";
-					break;
-				}
-				DecodeValue(p_val.substr(1), step);
-				m_sb += ')';
-				p_outLength = 1 + step;
-			}
+			DecodeValue(p_val.substr(1), step);
+			m_sb += ')';
+			p_outLength = 1 + step;
 		}
 		else if (IsString(p_val[0]))
 		{
@@ -872,9 +862,9 @@ bool GameStringUtil::IsOperator(uint8_t type)
 	return type >= 0xE0 && type <= 0xE7;
 }
 
-bool GameStringUtil::IsStringVariable(uint8_t type)
+bool GameStringUtil::IsStringVariable(char type)
 {
-	return type == StringParameter || type == ObjectParameter || type == 0xFF;
+	return type == StringParameter || type == ObjectParameter || type == (char)0xFF;
 }
 
 bool GameStringUtil::IsParameterVariable(uint8_t type)

@@ -11,6 +11,14 @@ TEST(GameStringTest, DecodePlain) {
 	EXPECT_EQ(output, actualOutput);
 }
 
+TEST(GameStringTest, DecodeOnePara) {
+	GameStringUtil gsu;
+	std::string input = "\x02\x2C\x0C\xFF\x06\x02\x29\x02\x02\x03\xFF\x02 \x02\x03";
+	std::string output = "<Split(<<Highlight(#1)>>, ,#1)>";
+	std::string actualOutput = (char *)gsu.Decode(input).c_str();
+	EXPECT_EQ(output, actualOutput);
+}
+
 TEST(GameStringTest, EncodePlain)
 {
 	GameStringUtil gsu;

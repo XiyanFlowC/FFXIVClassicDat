@@ -45,7 +45,7 @@ protected:
 		Value = 0x20,
 		Format = 0x22,
 		TwoDigitValue = 0x24,     // A single-digit value is formatted with a leading zero. 
-		//Time = 0x25, // Not present anywhere in game data up to 2015.04.17.0001.0000
+		Time2 = 0x25, // Not present anywhere in game data up to 2015.04.17.0001.0000
 		Sheet = 0x28,
 		Highlight = 0x29,
 		Clickable = 0x2B,     // Seemingly anything that has an action associated with it (NPCs, PCs, Items, etc.)
@@ -126,7 +126,7 @@ protected:
 		// ReservedParameter = 0xEC,
 	};
 
-	static bool IsStringVariable(uint8_t type);
+	static bool IsStringVariable(char type);
 
 	static bool IsParameterVariable(uint8_t type);
 

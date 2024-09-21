@@ -110,7 +110,9 @@ void Sheet::LoadFromCsv(CsvFile &p_csv)
 			else if (type & SDT_FLAG_BOOL)
 			{
 				auto str = xybase::string::to_lower(p_csv.NextCell());
-				if (str != u8"true" && str != u8"false") throw xybase::InvalidParameterException(L"p_csv", L"Bool type parse failed.", 54805);
+				if (str != u8"true" && str != u8"false")
+					throw xybase::InvalidParameterException(L"p_csv", 
+						std::format(L"Bool type parse failed. (For row {})", rowId), 54805);
 				cell.Set<bool>(str == u8"true");
 			}
 			else if (type & SDT_FLAG_STR)

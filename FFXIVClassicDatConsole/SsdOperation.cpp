@@ -61,6 +61,9 @@ void SsdOperation::ImportSheet(const std::filesystem::path &p_path, Sheet *p_she
     
     try
     {
+        // 更新模式：没有写明的行将保留原值，为此，首先载入原始文件
+        if (m_update)
+            p_sheet->LoadAll();
         CsvFile csv(path.wstring(), CsvFile::OperationType::Read);
         p_sheet->LoadFromCsv(csv);
     }
@@ -89,6 +92,7 @@ void SsdOperation::ExportSsd(const std::filesystem::path &p_path, const SsdData 
     if (p_sheet != u8"")
     {
         auto sheet = p_ssd.GetSheet(p_sheet);
+        if (sheet == nullptr) return;
         ExportSheet(p_path, sheet);
     }
 
@@ -104,6 +108,7 @@ void SsdOperation::ImportSsd(const std::filesystem::path &p_path, const SsdData 
     if (p_sheet != u8"")
     {
         auto sheet = p_ssd.GetSheet(p_sheet);
+        if (sheet == nullptr) return;
         ImportSheet(p_path, sheet);
     }
 
@@ -172,7 +177,7 @@ void SsdOperation::DecryptSsd()
     }
 }
 
-void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path)
+void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path, const std::u8string &p_sheet)
 {
     if (!std::filesystem::exists("type.txt"))
     {
@@ -195,12 +200,12 @@ void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path)
             SsdData ssd(path, Config::GetInstance().GetLangName());
             // 禁止载入子项，避免重复操作
             ssd.m_recursive = false;
-            ExportSsd(p_path, ssd);
+            ExportSsd(p_path, ssd, p_sheet);
         }
     }
 }
 
-void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path)
+void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path, const std::u8string &p_sheet)
 {
     if (!std::filesystem::exists("type.txt"))
     {
@@ -223,7 +228,7 @@ void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path)
             SsdData ssd(path, Config::GetInstance().GetLangName());
             // 禁止载入子项，避免重复操作
             ssd.m_recursive = false;
-            ImportSsd(p_path, ssd);
+            ImportSsd(p_path, ssd, p_sheet);
         }
     }
 }
