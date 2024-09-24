@@ -17,6 +17,7 @@ GameStringUtil::TagDefinition GameStringUtil::defs[] =
 	{u8"If", 2, 3, GameStringUtil::Tag::If},
 	{u8"LF", 0, 0, GameStringUtil::Tag::LineFeed},
 	{u8"Value", 1, 1, GameStringUtil::Tag::Value},
+	{u8"Value2", 1, 1, GameStringUtil::Tag::Value2},
 	{u8"Highlight", 1, 1, Tag::Highlight},
 	{u8"Switch", 1, 255, Tag::Switch},
 	{u8"Sheet", 2, 255, Tag::Sheet},
@@ -656,7 +657,7 @@ std::string GameStringUtil::ParseVariable()
 	return ret;
 }
 
-void GameStringUtil::DecodeTag(const char tag)
+void GameStringUtil::DecodeTag(const uint8_t tag)
 {
 	TagDefinition *def = defs;
 
@@ -862,9 +863,9 @@ bool GameStringUtil::IsOperator(uint8_t type)
 	return type >= 0xE0 && type <= 0xE7;
 }
 
-bool GameStringUtil::IsStringVariable(char type)
+bool GameStringUtil::IsStringVariable(uint8_t type)
 {
-	return type == StringParameter || type == ObjectParameter || type == (char)0xFF;
+	return type == StringParameter || type == ObjectParameter || type == 0xFF;
 }
 
 bool GameStringUtil::IsParameterVariable(uint8_t type)

@@ -12,14 +12,14 @@
 class GameStringUtil
 {
 protected:
-	const static char CONTROL_SEQ_START = '\x02';
-	const static char CONTROL_SEQ_END = '\x03';
+	const static uint8_t CONTROL_SEQ_START = '\x02';
+	const static uint8_t CONTROL_SEQ_END = '\x03';
 
 	// The tag types (enum Tag) grabed from SaintCoinach
 	// From https://github.com/xivapi/SaintCoinach/blob/35b1060e65ca0e18ad915a1c308f0e5f37a2bbd3/SaintCoinach/Text/TagType.cs
 	// Also ffxiv-classic-text-dump
 	// https://github.com/transparentmask/ffxiv-classic-text-dump/blob/master/tag_type.py
-	enum Tag : char
+	enum Tag : uint8_t
 	{
 		None = 0x00,
 
@@ -46,6 +46,7 @@ protected:
 		Format = 0x22,
 		TwoDigitValue = 0x24,     // A single-digit value is formatted with a leading zero. 
 		Time2 = 0x25, // Not present anywhere in game data up to 2015.04.17.0001.0000
+		Value2 = 0x26,
 		Sheet = 0x28,
 		Highlight = 0x29,
 		Clickable = 0x2B,     // Seemingly anything that has an action associated with it (NPCs, PCs, Items, etc.)
@@ -84,7 +85,7 @@ protected:
 	/**
 		* @brief 表示时间变量
 		*/
-	enum TimeVariable : char
+	enum TimeVariable : uint8_t
 	{
 		TimeMilliSecond = 0xD8,
 		TimeSecond = 0xD9,
@@ -101,7 +102,7 @@ protected:
 	/**
 	* @brief 表示算子
 	*/
-	enum Operator : char
+	enum Operator : uint8_t
 	{
 		GreaterThanOrEqualTo = 0xE0,    // Followed by two variables
 		GreaterThan = 0xE1,             // Followed by one variable
@@ -116,7 +117,7 @@ protected:
 	/**
 		* @brief 表示参数
 		*/
-	enum ParameterVariable : char
+	enum ParameterVariable : uint8_t
 	{
 		// TODO: I /think/ I got these right.
 		IntegerParameter = 0xE8,        // Followed by one variable
@@ -126,7 +127,7 @@ protected:
 		// ReservedParameter = 0xEC,
 	};
 
-	static bool IsStringVariable(char type);
+	static bool IsStringVariable(uint8_t type);
 
 	static bool IsParameterVariable(uint8_t type);
 
@@ -158,7 +159,7 @@ private:
 
 	long long ReadInteger();
 
-	void DecodeTag(const char tag);
+	void DecodeTag(const uint8_t tag);
 
 	void DecodeParameter(int p_argCount, int p_argMax, std::string_view p_param);
 
