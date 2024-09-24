@@ -635,6 +635,7 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 			if (offsets[i] == data->Tell()) continue;
 			Sheet::Row row(m_columnCount, m_indices);
 			m_schema.ReadRow(row, *data, offsets[i]);
+			if (row[0].GetType() == SDT_INVALID) continue;
 			m_rows.insert(std::make_pair(p_block.begin + i, std::move(row)));
 			assert(data->Tell() == offsets[i]);
 		}

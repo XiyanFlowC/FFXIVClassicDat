@@ -105,14 +105,22 @@ void SsdData::ParseRaptureSsdData(std::wstring path)
 	int length = ss.Decrypt(data.GetData(), data.GetLength(), data.GetData(), data.GetLength());
 	if (length < 0) length = data.GetLength();
 
-	// utf-8 BOM check
-	if (!memcmp(data.GetData(), "\xEF\xBB\xBF", 3))
+	try
 	{
-		ParseRaptureSsdData((char8_t *)data.GetData() + 3, length - 3);
+		// utf-8 BOM check
+		if (!memcmp(data.GetData(), "\xEF\xBB\xBF", 3))
+		{
+			ParseRaptureSsdData((char8_t *)data.GetData() + 3, length - 3);
+		}
+		else
+		{
+			ParseRaptureSsdData((char8_t *)data.GetData(), length);
+		}
 	}
-	else
+	catch (xybase::InvalidParameterException &ex)
 	{
-		ParseRaptureSsdData((char8_t *)data.GetData(), length);
+		throw xybase::InvalidParameterException(L"path", std::format(L"不能解析 {}，解析时的内部异常: {}（{}）",
+			path, ex.GetMessage(), ex.GetErrorCode()), ex.GetErrorCode());
 	}
 
 	m_isSsdParsed = 1;

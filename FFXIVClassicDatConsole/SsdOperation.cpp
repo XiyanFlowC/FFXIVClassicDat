@@ -15,7 +15,7 @@ void SsdOperation::ExportSheet(const std::filesystem::path &p_path, Sheet *p_she
 {
     std::wcout << xybase::string::to_wstring(p_sheet->GetName()) << ": ";
     auto path = p_path / (p_sheet->GetName() + u8".csv");
-    if (std::filesystem::exists(path))
+    if (!m_force && std::filesystem::exists(path))
     {
         std::wcout << xybase::string::to_wstring(L"Skip.\n");
         return;

@@ -24,6 +24,7 @@ public:
     bool m_fullExport = false;
     bool m_recursive = true;
     bool m_update = false;
+    bool m_force = false;
 
     /**
      * @brief 导出Sqwt的SSD。这些是界面UI文字。

@@ -1,4 +1,4 @@
-#include "xystring.h"
+﻿#include "xystring.h"
 #include <locale>
 #include <cstdlib>
 #include <cstdint>

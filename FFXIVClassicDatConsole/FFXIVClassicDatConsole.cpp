@@ -90,7 +90,7 @@ Action action = ACT_INVALID;
 
 uint32_t ssdTarget = 0;
 std::u8string sheetName;
-bool fullExport = false, update = false;
+bool fullExport = false, update = false, force = false;
 
 int main(int argc, const char ** argv)
 {
@@ -147,6 +147,10 @@ int main(int argc, const char ** argv)
         update = true;
         return 0;
         });
+    lopt_regopt("force", '\0', 0, [](const char *para)->int {
+        force = true;
+        return 0;
+        });
     lopt_regopt("help", '?', 0, help);
 
 
@@ -173,6 +177,7 @@ int main(int argc, const char ** argv)
         SsdOperation so;
         so.m_update = update;
         so.m_fullExport = fullExport;
+        so.m_force = force;
         switch (action)
         {
         case ACT_INVALID:
@@ -224,6 +229,10 @@ int main(int argc, const char ** argv)
         std::wcerr << L"发生了异常。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
         std::cin.get();
         exit(ex.GetErrorCode());
+    }
+    catch (xybase::Exception &ex)
+    {
+        std::wcerr << L"发生了严重的故障。" << ex.GetErrorCode() << " - " << ex.GetMessage() << std::endl;
     }
 #endif
     
