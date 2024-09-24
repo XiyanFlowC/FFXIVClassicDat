@@ -135,7 +135,7 @@ long long GameStringUtil::DecodeMultibyteInteger(std::string_view p_str, int &p_
 
 	long long ret;
 
-	switch (type)
+	switch ((uint8_t)type)
 	{
 		/* [0] Int8 */
 	case 0xF0:
@@ -744,7 +744,7 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 
 		if (IsOperator(p_val[0]))
 		{
-			switch (p_val[0])
+			switch ((Operator)p_val[0])
 			{
 			case GreaterThan:
 				m_sb += "@gt";
@@ -819,7 +819,7 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 		}
 		else if (IsParameterVariable(p_val[0]))
 		{
-			switch (p_val[0])
+			switch ((ParameterVariable)p_val[0])
 			{
 			case StringParameter:
 				m_sb += "$str(";
@@ -833,6 +833,8 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 			case PlayerParameter:
 				m_sb += "$plyr(";
 				break;
+			default:
+				abort();
 			}
 			DecodeValue(p_val.substr(1), step);
 			m_sb += ')';
