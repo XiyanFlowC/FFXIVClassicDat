@@ -12,12 +12,14 @@
 
 struct opt_reg
 {
+    int (*callback)(const char *);
+    const void *desc;
     char ch_opt;
     char long_opt[26];
     unsigned char flg;
-    int (*callback)(const char *);
 };
 
+#define LOPT_FLG_DESC_VLD 0x10
 #define LOPT_FLG_OPT_VLD 0x8  /* This opt is valid */
 #define LOPT_FLG_VAL_NEED 0x4 /* This opt needs a value */
 #define LOPT_FLG_CH_VLD 0x2   /* This opt has a ch prs */
@@ -65,7 +67,7 @@ static int _lopt_callbystr(const char *opt, const char *_str)
     return -i;
 }
 
-static void lopt_regopt(const char *name, char chname, unsigned char flg, int (*callback)(const char *))
+static void lopt_regopt(const char *name, char chname, unsigned char flg, int (*callback)(const char *), const void *desc)
 {
     static int opt_idx = 0;
     if (_reged_opt == NULL)
@@ -74,6 +76,11 @@ static void lopt_regopt(const char *name, char chname, unsigned char flg, int (*
         return;
     _reged_opt[opt_idx].callback = callback;
     _reged_opt[opt_idx].ch_opt = chname;
+    _reged_opt[opt_idx].desc = desc;
+    if (desc != NULL)
+    {
+        flg |= LOPT_FLG_DESC_VLD;
+    }
     if (name != NULL)
     {
         flg |= LOPT_FLG_STR_VLD;

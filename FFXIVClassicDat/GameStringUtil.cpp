@@ -128,7 +128,7 @@ std::string GameStringUtil::Parse(const char8_t *p_str)
 
 long long GameStringUtil::DecodeMultibyteInteger(std::string_view p_str, int &p_outLength)
 {
-	// holy fuck the char is sign?!!
+	// holy fuck the char is signed?!!
 	uint8_t type = p_str[0];
 	if (type < 0xF0 || type == 0xFF)
 		throw xybase::InvalidParameterException(L"m_str[m_pos]", L"Invalid integer specifier.", 145701);
@@ -805,7 +805,7 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 				m_sb += "year";
 				break;
 			default:
-				break;
+				abort();
 			}
 			m_sb += ')';
 			p_outLength = 1;

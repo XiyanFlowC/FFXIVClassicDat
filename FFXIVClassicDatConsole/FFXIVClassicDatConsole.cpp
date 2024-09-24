@@ -72,6 +72,52 @@ int setLanguage(const char *para)
 
 int help(const char *para)
 {
+    std::wcout << L"FFXIV 1.0 数据文件处理控制台" << std::endl
+        << std::endl;
+    for (int i = 0; i < 32; ++i)
+    {
+        if (!LOPT_FLG_CHK(_reged_opt[i].flg, LOPT_FLG_DESC_VLD)) continue;
+        if (LOPT_FLG_CHK(_reged_opt[i].flg, LOPT_FLG_CH_VLD))
+            std::wcout << std::format(L"-{}  ", (wchar_t)_reged_opt[i].ch_opt);
+        else
+            std::wcout << L"    ";
+        if (LOPT_FLG_CHK(_reged_opt[i].flg, LOPT_FLG_STR_VLD))
+            std::wcout << std::format(L"--{:16} ", xybase::string::to_wstring(_reged_opt[i].long_opt));
+        else
+            std::wcout << L"                  ";
+
+        if (LOPT_FLG_CHK(_reged_opt[i].flg, LOPT_FLG_VAL_NEED))
+            std::wcout << L"* ";
+        else
+            std::wcout << L"  ";
+
+        auto ch = (wchar_t *)_reged_opt[i].desc;
+        int cur = 0;
+        int lfc = 24;
+        while (*ch)
+        {
+            if (*ch == L'\n')
+            {
+                cur = 0;
+                if (*++ch)
+                    std::wcout << L"\n                             ";
+                else
+                    std::wcout << std::endl;
+                continue;
+            }
+            std::wcout << *ch++;
+            if (cur++ > lfc)
+            {
+                cur = 0;
+                if (*ch)
+                    std::wcout << L"\n                             ";
+                else
+                    std::wcout << std::endl;
+            }
+        }
+        if (cur) std::wcout << L"\n";
+    }
+    std::wcout << L"标记了 * 的项目，表示该开关需要后随一个参数。" << std::endl;
     return 0;
 }
 
@@ -90,27 +136,26 @@ Action action = ACT_INVALID;
 
 uint32_t ssdTarget = 0;
 std::u8string sheetName;
-bool fullExport = false, update = false, force = false;
+bool fullExport = false, update = false, force = false, trace = false;
 
 int main(int argc, const char ** argv)
 {
-    if (argc == 1) help(nullptr);
     setlocale(LC_ALL, "");
 
-    lopt_regopt("config", 'c', LOPT_FLG_VAL_NEED, config);
-    lopt_regopt("install-path", 'I', LOPT_FLG_VAL_NEED, setInstallLocation);
-    lopt_regopt("work-area-path", 'O', LOPT_FLG_VAL_NEED, setWorkAreaLocation);
-    lopt_regopt("lang", 'L', LOPT_FLG_VAL_NEED, setLanguage);
+    lopt_regopt("config", 'c', LOPT_FLG_VAL_NEED, config, nullptr);
+    lopt_regopt("install-path", 'I', LOPT_FLG_VAL_NEED, setInstallLocation, L"设定安装目录。会记忆该设定。");
+    lopt_regopt("work-area-path", 'O', LOPT_FLG_VAL_NEED, setWorkAreaLocation, L"设定工作区。会记忆该设定。");
+    lopt_regopt("lang", 'L', LOPT_FLG_VAL_NEED, setLanguage, L"设定语言。会记忆该设定。有效值：[0,5]");
     
     lopt_regopt("scan", 'S', 0, [](const char *para)->int {
         std::filesystem::remove("type.txt");
         action = ACT_BUILD_DATABASE;
         return 0;
-        });
+        }, L"扫描游戏 data 文件夹。记录已知类型的文件存储位置。");
     lopt_regopt("decrypt-ssd", 'd', 0, [](const char *para)->int {
         action = ACT_DECRYPT_SSD;
         return 0;
-        });
+        }, L"解密已知的（登录在 type.txt 中的）SSD 文件到工作区。");
     lopt_regopt("export-ssd", 'e', 0, [](const char *para)->int {
         if (para)
         {
@@ -122,7 +167,7 @@ int main(int argc, const char ** argv)
         }
         action = ACT_EXPORT_SHEETS;
         return 0;
-        });
+        }, L"导出SSD。可以提供一个 Data ID 来指定要对哪一个 SSD 操作。不指定的情况下导出\ntype.txt 中指明的全部 SSD。");
     lopt_regopt("import-ssd", 'i', 0, [](const char *para)->int {
         if (para)
         {
@@ -134,24 +179,29 @@ int main(int argc, const char ** argv)
         }
         action = ACT_IMPORT_SHEETS;
         return 0;
-        });
+        }, L"导入SSD。可以提供一个 Data ID 来指定要对哪一个 SSD 操作。不指定的情况下导入\ntype.txt 中指明的全部 SSD。");
     lopt_regopt("sheet", 's', LOPT_FLG_VAL_NEED, [](const char *para)->int {
         sheetName = xybase::string::to_utf8(para);
         return 0;
-        });
+        }, L"指定要对哪一个表操作。SSD 导入导出时有效。");
     lopt_regopt("full-export", '\0', 0, [](const char *para) ->int {
         fullExport = true;
         return 0;
-        });
+        }, L"无视 enable 进行 SSD 的导出。仅导出\nSSD 时有效。一般不需要设置。");
     lopt_regopt("update", 'U', 0, [](const char *para) ->int {
         update = true;
         return 0;
-        });
-    lopt_regopt("force", '\0', 0, [](const char *para)->int {
+        }, L"导入时执行更新操作。合并现有数据和工作区中 CSV 的数据。");
+    lopt_regopt("force", 'f', 0, [](const char *para)->int {
         force = true;
         return 0;
-        });
-    lopt_regopt("help", '?', 0, help);
+        }, L"强制导出。覆盖工作区中已经存在之前导出的数据。");
+    lopt_regopt("trace-dat-access", 'T', 0, [](const char *para)->int {
+        trace = true;
+        return 0;
+        }, L"记录数据文件访问情况。诊断时很有用。");
+    lopt_regopt("help", '?', 0, help, L"显示本信息。");
+    if (argc == 1) help(nullptr);
 
 
     int ret = lopt_parse(argc, argv);
@@ -173,6 +223,7 @@ int main(int argc, const char ** argv)
     try
     {
         DataManager::GetInstance().m_basePath = Config::GetInstance().GetGamePath() / "data";
+        DataManager::GetInstance().m_traceAccess = trace;
         FileScanner fs;
         SsdOperation so;
         so.m_update = update;

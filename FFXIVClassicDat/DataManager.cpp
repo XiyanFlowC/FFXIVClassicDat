@@ -3,6 +3,7 @@
 #include <format>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 #include "BinaryData.h"
 #include "xybase/BinaryStream.h"
@@ -26,6 +27,10 @@ DataManager &DataManager::GetInstance()
 
 BinaryData DataManager::LoadData(uint32_t p_id)
 {
+	if (m_traceAccess)
+	{
+		std::wcout << "Load " << std::hex << std::uppercase << std::setfill(L'0') << std::setw(8) << p_id << std::endl;
+	}
 	std::wstring path = std::format(L"{}/{:02X}/{:02X}/{:02X}/{:02X}.DAT", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF, p_id & 0xFF);
 
 	if (!std::filesystem::exists(path)) throw FileMissingException(p_id);
@@ -40,6 +45,10 @@ BinaryData DataManager::LoadData(uint32_t p_id)
 
 xybase::BinaryStream *DataManager::NewDataStream(uint32_t p_id, const wchar_t *p_mode)
 {
+	if (m_traceAccess)
+	{
+		std::wcout << "Raw Access[" << p_mode << "] " << std::hex << std::uppercase << std::setfill(L'0') << std::setw(8) << p_id << std::endl;
+	}
 	std::filesystem::path path = BuildDataPath(p_id);
 
 	if ((p_mode[0] == 'r' || p_mode[1] == 'r') && !std::filesystem::exists(path)) throw FileMissingException(p_id);
@@ -55,6 +64,10 @@ std::wstring DataManager::BuildDataPath(uint32_t p_id)
 
 void DataManager::SaveData(uint32_t p_id, const BinaryData &p_data)
 {
+	if (m_traceAccess)
+	{
+		std::wcout << "Save " << std::hex << std::uppercase << std::setfill(L'0') << std::setw(8) << p_id << std::endl;
+	}
 	std::wstring path = BuildDataPath(p_id);
 	std::wstring dir = std::format(L"{}/{:02X}/{:02X}/{:02X}/", m_basePath, p_id >> 24, (p_id >> 16) & 0xFF, (p_id >> 8) & 0xFF);
 

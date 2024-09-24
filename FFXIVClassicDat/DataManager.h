@@ -36,6 +36,8 @@ public:
 
 	std::wstring m_basePath;
 
+	bool m_traceAccess;
+
 	BinaryData LoadData(uint32_t p_id);
 
 	xybase::BinaryStream *NewDataStream(uint32_t p_id, const wchar_t *p_mode);
