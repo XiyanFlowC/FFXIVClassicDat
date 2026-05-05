@@ -1,6 +1,4 @@
-﻿//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 使用者 FFXIVClassicDatExplorer.rc
+﻿#pragma once
 
 #define IDS_APP_TITLE			103
 
@@ -13,11 +11,15 @@
 #define IDI_SMALL				108
 #define IDC_FFXIVCLASSICDATEXPLORER			109
 #define IDC_MYICON				2
+
+#define IDM_FILE_OPEN           200
+#define IDM_FILE_OPEN_PATCH     201
+#define IDM_TOOLS_CONFIG        300
+
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif
-// 新对象的下一组默认值
-//
+
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 

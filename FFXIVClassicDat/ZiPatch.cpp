@@ -437,6 +437,7 @@ std::string ApplyResult::Summary() const {
 
 void ZiPatchApplier::backupIfNeeded_(const std::filesystem::path& filepath,
                                        const std::filesystem::path& backup_dir) {
+	if (m_depressBackup) return;  // User opted out of backups
     if (backup_dir.empty() || !std::filesystem::exists(filepath)) return;
     auto rel = filepath.lexically_relative(
         filepath.root_path().empty() ? std::filesystem::current_path().root_path()

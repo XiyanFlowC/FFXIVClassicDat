@@ -808,6 +808,8 @@ public:
         std::function<void(size_t, size_t)> progress = {}
     );
 
+	bool m_depressBackup = false;  // Whether to backup files before modification
+
 private:
     void backupIfNeeded_(const std::filesystem::path& filepath,
                           const std::filesystem::path& backup_dir);
