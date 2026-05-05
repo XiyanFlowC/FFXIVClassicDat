@@ -1,9 +1,10 @@
-#include "SsdViewer.h"
+ï»¿#include "SsdViewer.h"
 
 #include <iostream>
 #include <string>
 #include "Config.h"
 #include "SsdData.h"
+#include "xybase/Exception/Exception.h"
 #include <Sheet.h>
 #include <xybase/Exception/InvalidParameterException.h>
 
@@ -20,7 +21,7 @@ void SsdViewer::Interface()
 {
 	while (1)
 	{
-		std::wcout << L"1-Éè¶¨²¢³¢ÊÔ´ò¿ªÄ¿±êÎÄ¼ş¡£\n2-Éè¶¨¶ÔÏó±í\n5 <n> <m>-²é¿´n-mĞĞ\n6 <n> <m>-²é¿´nĞĞmÁĞµÄÊı¾İ¡£\n9-ÒÔÖ¸¶¨ÓïÑÔ´ò¿ªÄ¿±êÎÄ¼ş\n" << std::endl;
+		std::wcout << L"1-è®¾å®šå¹¶å°è¯•æ‰“å¼€ç›®æ ‡æ–‡ä»¶ã€‚\n2-è®¾å®šå¯¹è±¡è¡¨\n5 <n> <m>-æŸ¥çœ‹n-mè¡Œ\n6 <n> <m>-æŸ¥çœ‹nè¡Œmåˆ—çš„æ•°æ®ã€‚\n9-ä»¥æŒ‡å®šè¯­è¨€æ‰“å¼€ç›®æ ‡æ–‡ä»¶\n" << std::endl;
 		std::wcout << "SSD Viewer? ";
 		int cmd;
 		std::wcin >> cmd;
@@ -34,7 +35,7 @@ void SsdViewer::Interface()
 			m_sheet = nullptr;
 
 			std::wstring file;
-			std::wcout << L"ÄÄÒ»¸öÎÄ¼ş£¿£¨ÇëÊäÈëÎÄ¼şID£¬Èç270B0000£©" << std::endl;
+			std::wcout << L"å“ªä¸€ä¸ªæ–‡ä»¶ï¼Ÿï¼ˆè¯·è¾“å…¥æ–‡ä»¶IDï¼Œå¦‚270B0000ï¼‰" << std::endl;
 			std::wcout << "SSD Viewer>Open? ";
 			std::wcin >> file;
 			try
@@ -43,16 +44,16 @@ void SsdViewer::Interface()
 			}
 			catch (xybase::Exception &ex)
 			{
-				std::wcout << L"Ö¸¶¨µÄSSD¿ÉÄÜÒÑ¾­Ëğ»µ£¬»òÕß²»ÊÇSSD¡£" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
+				std::wcout << L"æŒ‡å®šçš„SSDå¯èƒ½å·²ç»æŸåï¼Œæˆ–è€…ä¸æ˜¯SSDã€‚" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
 				continue;
 			}
 			catch (xybase::RuntimeException &ex)
 			{
-				std::wcout << L"Ö¸¶¨µÄSSD¿ÉÄÜÒÑ¾­Ëğ»µ£¬»òÕß²»ÊÇSSD¡£" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
+				std::wcout << L"æŒ‡å®šçš„SSDå¯èƒ½å·²ç»æŸåï¼Œæˆ–è€…ä¸æ˜¯SSDã€‚" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
 				continue;
 			}
 
-			std::wcout << L"¸ÃSSD°üº¬ÒÔÏÂ±í£º";
+			std::wcout << L"è¯¥SSDåŒ…å«ä»¥ä¸‹è¡¨ï¼š";
 			for (auto &&sheet : m_ssd->GetAllSheets())
 			{
 				std::wcout << xybase::string::to_wstring(sheet->GetName()) << std::endl;
@@ -62,13 +63,13 @@ void SsdViewer::Interface()
 		{
 			if (m_ssd)
 			{
-				std::wcout << L"ÒªÔØÈëµÄ±íÊÇ£¿" << std::endl;
+				std::wcout << L"è¦è½½å…¥çš„è¡¨æ˜¯ï¼Ÿ" << std::endl;
 				std::wcout << "SSD Viewer>Load Sheet? ";
 				std::wstring sheet;
 				std::wcin >> sheet;
 				if (m_sheet = m_ssd->GetSheet(xybase::string::to_utf8(sheet)))
 				{
-					std::wcout << L"Ñ¡ÔñÁËÄ¿±ê£º" << m_sheet->ToString();
+					std::wcout << L"é€‰æ‹©äº†ç›®æ ‡ï¼š" << m_sheet->ToString();
 				}
 			}
 		}
@@ -100,10 +101,10 @@ void SsdViewer::Interface()
 			m_sheet = nullptr;
 
 			std::wstring file, lang;
-			std::wcout << L"ÄÄÒ»¸öÎÄ¼ş£¿£¨ÇëÊäÈëÎÄ¼şID£¬Èç270B0000£©" << std::endl;
+			std::wcout << L"å“ªä¸€ä¸ªæ–‡ä»¶ï¼Ÿï¼ˆè¯·è¾“å…¥æ–‡ä»¶IDï¼Œå¦‚270B0000ï¼‰" << std::endl;
 			std::wcout << "SSD Viewer>Open? ";
 			std::wcin >> file;
-			std::wcout << L"ÓïÑÔ£¿(ja/en/de/fr/chs/cht)" << std::endl;
+			std::wcout << L"è¯­è¨€ï¼Ÿ(ja/en/de/fr/chs/cht)" << std::endl;
 			std::wcout << "SSD Viewer>Open? ";
 			std::wcin >> lang;
 			try
@@ -112,15 +113,15 @@ void SsdViewer::Interface()
 			}
 			catch (xybase::Exception &ex)
 			{
-				std::wcout << L"Ö¸¶¨µÄSSD¿ÉÄÜÒÑ¾­Ëğ»µ£¬»òÕß²»ÊÇSSD¡£" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
+				std::wcout << L"æŒ‡å®šçš„SSDå¯èƒ½å·²ç»æŸåï¼Œæˆ–è€…ä¸æ˜¯SSDã€‚" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
 				continue;
 			}
 			catch (xybase::RuntimeException &ex)
 			{
-				std::wcout << L"Ö¸¶¨µÄSSD¿ÉÄÜÒÑ¾­Ëğ»µ£¬»òÕß²»ÊÇSSD¡£" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
+				std::wcout << L"æŒ‡å®šçš„SSDå¯èƒ½å·²ç»æŸåï¼Œæˆ–è€…ä¸æ˜¯SSDã€‚" << ex.GetErrorCode() << ex.GetMessage() << std::endl;
 				continue;
 			}
-			std::wcout << L"¸ÃSSD°üº¬ÒÔÏÂ±í£º";
+			std::wcout << L"è¯¥SSDåŒ…å«ä»¥ä¸‹è¡¨ï¼š";
 			for (auto &&sheet : m_ssd->GetAllSheets())
 			{
 				std::wcout << xybase::string::to_wstring(sheet->GetName()) << std::endl;

@@ -7,26 +7,26 @@
 #include "SimpleString.h"
 #include "BinaryData.h"
 
-std::wstring LuaScriptFile::subalphabet = L"0123456789abcdefghijklmnopqrstuvwxyz";
-std::wstring LuaScriptFile::revalphabet = L"jihgfedcba9876543210zyxwvutsrqponmlk";
+std::wstring LuaScriptFile::s_subAlphabet = L"0123456789abcdefghijklmnopqrstuvwxyz";
+std::wstring LuaScriptFile::s_revAlphabet = L"jihgfedcba9876543210zyxwvutsrqponmlk";
 
-LuaScriptFile::LuaScriptFile(const std::wstring &p_scriptBasePath)
+LuaScriptFile::LuaScriptFile(const std::wstring &scriptBasePath)
 {
-	basePath = p_scriptBasePath;
-	std::wstring p_staticActorSanPath = p_scriptBasePath + FileNameCipher(L"StaticActor") + L".san";
-	size_t length = std::filesystem::file_size(p_staticActorSanPath);
-	std::ifstream eye(p_staticActorSanPath, std::ios::binary);
+	m_basePath = scriptBasePath;
+	std::wstring staticActorSanPath = scriptBasePath + FileNameCipher(L"StaticActor") + L".san";
+	size_t length = std::filesystem::file_size(staticActorSanPath);
+	std::ifstream eye(staticActorSanPath, std::ios::binary);
 	SanHeader header;
 	eye.read((char *) &header, sizeof(SanHeader));
 	if (memcmp(&header.magic, "sane", 4))
 	{
-		throw xybase::InvalidParameterException(L"p_staticActorSanPath", L"Magic Header Verification failed.", 187200);
+		throw xybase::InvalidParameterException(L"staticActorSanPath", L"Magic Header Verification failed.", 187200);
 	}
 	size_t recordLength = length - sizeof(SanHeader);
 	char *buffer = new char[recordLength];
 	eye.read(buffer, recordLength);
 
-	// Decrypt ( if first byte is not 0xFF, than no encryption here
+	/* Decrypt if first byte is not 0xFF, then no encryption here */
 	SimpleString ss;
 	int trueLength = ss.Decrypt(buffer, recordLength, buffer, recordLength);
 	if (trueLength < 0) trueLength = recordLength;
@@ -36,7 +36,7 @@ LuaScriptFile::LuaScriptFile(const std::wstring &p_scriptBasePath)
 	{
 		Actor *actor = (Actor *)cur;
 		std::u8string name{ (char8_t *)actor->name };
-		actors[actor->id] = name;
+		m_actors[actor->id] = name;
 		size_t alignedLength = (name.size() + 1) + 3 & ~3;
 		cur += 4 + alignedLength;
 	}
@@ -46,16 +46,16 @@ LuaScriptFile::LuaScriptFile(const std::wstring &p_scriptBasePath)
 	eye.close();
 }
 
-std::wstring LuaScriptFile::FileNameCipher(std::wstring_view p_fileName)
+std::wstring LuaScriptFile::FileNameCipher(std::wstring_view fileName)
 {
 	std::wstring ret;
-	std::wstring fileName = xybase::string::to_lower(std::wstring{ p_fileName });
-	for (auto &&ch : fileName)
+	std::wstring convertedFileName = xybase::string::to_lower(std::wstring{ fileName });
+	for (auto &&ch : convertedFileName)
 	{
-		size_t code = subalphabet.find(ch);
+		size_t code = s_subAlphabet.find(ch);
 		if (code != std::wstring::npos)
 		{
-			ret += revalphabet[code];
+			ret += s_revAlphabet[code];
 		}
 		else
 			ret += ch;
@@ -63,15 +63,15 @@ std::wstring LuaScriptFile::FileNameCipher(std::wstring_view p_fileName)
 	return ret;
 }
 
-std::wstring LuaScriptFile::FileNameDecipher(std::wstring_view p_fileName)
+std::wstring LuaScriptFile::FileNameDecipher(std::wstring_view fileName)
 {
 	std::wstring ret;
-	for (auto &&ch : p_fileName)
+	for (auto &&ch : fileName)
 	{
-		size_t code = revalphabet.find(ch);
+		size_t code = s_revAlphabet.find(ch);
 		if (code != std::wstring::npos)
 		{
-			ret += subalphabet[code];
+			ret += s_subAlphabet[code];
 		}
 		else
 			ret += ch;
@@ -108,12 +108,12 @@ BinaryData LuaScriptFile::GetLuacDataByPath(const std::wstring &path)
 
 BinaryData LuaScriptFile::GetLuacDataByName(const std::u8string &actorName)
 {
-	std::wstring lpdPath = basePath + L"\\" + FileNameCipher(xybase::string::to_wstring(actorName)) + L"_p.le.lpd";
+	std::wstring lpdPath = m_basePath + L"\\" + FileNameCipher(xybase::string::to_wstring(actorName)) + L"_p.le.lpd";
 	return GetLuacDataByPath(lpdPath);
 }
 
 
 BinaryData LuaScriptFile::GetLuacDataByActorId(uint32_t id)
 {
-	return GetLuacDataByName(actors.find(id)->second);
+	return GetLuacDataByName(m_actors.find(id)->second);
 }

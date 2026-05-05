@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <filesystem>
 #include "Config.h"
 
@@ -8,7 +8,7 @@ class FileScanner
 {
 public:
     /**
-     * @brief É¨ÃèÊı¾İÎÄ¼ş¼Ğ£¬²Â²âÎÄ¼şÀàĞÍ
+     * @brief æ‰«ææ•°æ®æ–‡ä»¶å¤¹ï¼ŒçŒœæµ‹æ–‡ä»¶ç±»å‹
      */
     void FileScan();
 protected:
@@ -19,7 +19,7 @@ protected:
      */
     int GetXmlType(BinaryData &bd);
 
-    // TODO: Íê³ÉÒÔÏÂÀà±ğÎÄ¼ş
+    // TODO: å®Œæˆä»¥ä¸‹ç±»åˆ«æ–‡ä»¶
     int IsOgg(BinaryData &bd);
 
     int IsBlock(BinaryData &bd);

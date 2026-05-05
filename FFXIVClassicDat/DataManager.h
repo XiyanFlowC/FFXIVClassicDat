@@ -12,12 +12,12 @@ namespace xybase
 class BinaryData;
 
 /**
- * @brief 从Data文件夹读取数据文件所用的类
+ * @brief 数据文件管理器，用于从 Data 文件夹中读取数据文件。
  */
 class DataManager
 {
 private:
-	DataManager() {};
+	DataManager() : m_traceAccess(false) {};
 
 public:
 	class FileMissingException : public xybase::RuntimeException
@@ -25,7 +25,7 @@ public:
 	public:
 		virtual ~FileMissingException() {};
 
-		FileMissingException(uint32_t p_missFileId);
+		FileMissingException(uint32_t p_missingFileId);
 
 		uint32_t GetFileId();
 	protected:
@@ -46,4 +46,3 @@ public:
 
 	void SaveData(uint32_t p_id, const BinaryData &p_data);
 };
-

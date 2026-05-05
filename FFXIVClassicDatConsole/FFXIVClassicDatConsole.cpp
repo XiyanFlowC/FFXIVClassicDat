@@ -201,7 +201,7 @@ int main(int argc, const char ** argv)
         return 0;
         }, L"记录数据文件访问情况。诊断时很有用。");
     lopt_regopt("help", '?', 0, help, L"显示本信息。");
-    if (argc == 1) help(nullptr);
+    if (argc == 1) { help(nullptr); return 0; }
 
 
     int ret = lopt_parse(argc, argv);

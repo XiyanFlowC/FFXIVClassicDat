@@ -1,7 +1,9 @@
-﻿#include "Config.h"
-
+﻿#define XY_IGNORE_DEPRECATED
 #include <xybase/BinaryStream.h>
 #include <xybase/xystring.h>
+
+#include "Config.h"
+
 #include <string>
 #include <format>
 #include <iostream>

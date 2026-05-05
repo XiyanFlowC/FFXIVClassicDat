@@ -2,35 +2,47 @@
 #include <cstdint>
 
 /**
- * @brief ShuffleString 加解密
- * XML 文件等，使用此种方式加密（注：再封装时不需加密，游戏可读取明文信息）
+ * @brief ShuffleString encryption/decryption utility.
+ *
+ * Used for XML files and other data that employ this encryption method.
+ * Note: re-packaging does not require encryption; the game can read plaintext.
  */
 class ShuffleString
 {
 public:
 	/**
-	 * @brief 解密
-	 * @param src 来源
-	 * @param srcLeng 来源长度
-	 * @param dst 目的
-	 * @param dstLeng 目的长度
-	 * @return 成功返回成功处理的字符串数目，否则返回负数
+	 * @brief Decrypt shuffle-encrypted data.
+	 * @param srcData Source buffer
+	 * @param srcLen Length of source data
+	 * @param dstData Destination buffer
+	 * @param dstLen Length of destination buffer
+	 * @return Number of successfully processed bytes on success, negative value on failure
 	 */
-	int Decrypt(void *src, int srcLeng, void *dst, int dstLeng);
+	int Decrypt(void *srcData, int srcLen, void *dstData, int dstLen);
 
 	/**
-	 * @brief 加密
-	 * @param src 
-	 * @param srcLeng 
-	 * @param dst 
-	 * @param dstLeng 
-	 * @return 
+	 * @brief Encrypt data using shuffle encryption.
+	 * @param srcData Source buffer
+	 * @param srcLen Length of source data
+	 * @param dstData Destination buffer
+	 * @param dstLen Length of destination buffer
+	 * @return Number of successfully processed bytes on success, negative value on failure
 	 */
-	int Encrypt(void *src, int srcLeng, void *dst, int dstLeng);
+	int Encrypt(void *srcData, int srcLen, void *dstData, int dstLen);
 
 protected:
+	/**
+	 * @brief Shuffle characters by swapping pairs from head/tail inward.
+	 * @param dst Buffer to shuffle in-place
+	 * @param length Number of bytes to shuffle
+	 */
 	void Shuffle(void *dst, int length);
 
+	/**
+	 * @brief Derive two 16-bit XOR factors from a key.
+	 * @param key The key value
+	 * @param a Output: first factor
+	 * @param b Output: second factor
+	 */
 	void GetFactors(int16_t key, uint16_t *a, uint16_t *b);
 };
-

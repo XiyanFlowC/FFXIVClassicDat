@@ -9,8 +9,8 @@
 #include "xybase/BinaryStream.h"
 #include "xybase/Exception/InvalidParameterException.h"
 
-DataManager::FileMissingException::FileMissingException(uint32_t p_missFileId)
-	: xybase::RuntimeException(std::format(L"Specified data file [{:08X}] missing!", p_missFileId), 87700), m_fileId(p_missFileId)
+DataManager::FileMissingException::FileMissingException(uint32_t p_missingFileId)
+	: xybase::RuntimeException(std::format(L"Specified data file [{:08X}] missing!", p_missingFileId), 87700), m_fileId(p_missingFileId)
 {
 }
 
@@ -80,4 +80,3 @@ void DataManager::SaveData(uint32_t p_id, const BinaryData &p_data)
 	pen.write((char *)p_data.GetData(), p_data.GetLength());
 	pen.close();
 }
-

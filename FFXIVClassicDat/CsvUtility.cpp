@@ -13,7 +13,8 @@ CsvFile::CsvFile(std::wstring filePath, OperationType mode)
 
 		char buf[3];
 		m_stream->ReadBytes(buf, 3);
-		// 不为 BOM，Rewind
+
+		/* Not a BOM, rewind */
 		if (memcmp(buf, "\xEF\xBB\xBF", 3)) m_stream->Seek(0);
 	}
 	if (mode == OperationType::Write)
@@ -82,17 +83,17 @@ std::u8string CsvFile::NextCell()
 	return sb.ToString();
 }
 
-void CsvFile::NewCell(const std::u8string &p_str)
+void CsvFile::NewCell(const std::u8string &value)
 {
 	if (m_firstCellFlag)
 		m_firstCellFlag = false;
 	else
 		m_stream->Write((uint8_t)',');
 
-	if (p_str.find_first_of(u8"\n\r\",") != std::u8string::npos)
+	if (value.find_first_of(u8"\n\r\",") != std::u8string::npos)
 	{
 		m_stream->Write((uint8_t)'"');
-		for (auto &&ch : p_str)
+		for (auto &&ch : value)
 		{
 			if (ch == '"') m_stream->Write("\"\"", 2);
 			else m_stream->Write((uint8_t) ch);
@@ -101,7 +102,7 @@ void CsvFile::NewCell(const std::u8string &p_str)
 	}
 	else
 	{
-		m_stream->Write((char *)p_str.c_str(), p_str.size());
+		m_stream->Write((char *)value.c_str(), value.size());
 	}
 }
 

@@ -1,46 +1,46 @@
 #include "BinaryData.h"
 
 BinaryData::BinaryData()
-    : length(0)
+    : m_length(0)
 {
 }
 
-BinaryData::BinaryData(void *data, size_t length, bool duplicate)
+BinaryData::BinaryData(void *p_data, size_t p_length, bool p_duplicate)
 {
-	SetData(data, length, duplicate);
+	SetData(p_data, p_length, p_duplicate);
 }
 
-BinaryData::BinaryData(size_t length)
+BinaryData::BinaryData(size_t p_length)
 {
-    this->data = std::shared_ptr<char[]>(new char[length]);
-    this->length = length;
+    m_data = std::shared_ptr<char[]>(new char[p_length]);
+    m_length = p_length;
 }
 
 void *BinaryData::GetData() const noexcept
 {
-	return data.get();
+	return m_data.get();
 }
 
 size_t BinaryData::GetLength() const noexcept
 {
-	return length;
+	return m_length;
 }
 
-void BinaryData::SetData(void *data, size_t length, bool duplicate)
+void BinaryData::SetData(void *p_data, size_t p_length, bool p_duplicate)
 {
-    if (duplicate)
+    if (p_duplicate)
     {
-        this->data = std::shared_ptr<char[]>(new char[length]);
-        memcpy(this->data.get(), data, length);
+        m_data = std::shared_ptr<char[]>(new char[p_length]);
+        memcpy(m_data.get(), p_data, p_length);
     }
     else
     {
-        this->data = std::shared_ptr<char[]>((char *)data);
+        m_data = std::shared_ptr<char[]>((char *)p_data);
     }
-    this->length = length;
+    m_length = p_length;
 }
 
-void BinaryData::SetData(const void *data, size_t length)
+void BinaryData::SetData(const void *p_data, size_t p_length)
 {
-    SetData((char *)data, length, true);
+    SetData((char *)p_data, p_length, true);
 }

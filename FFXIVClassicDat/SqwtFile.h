@@ -8,9 +8,9 @@
  */
 class SqwtFile
 {
-	const char SQEX_MAGIC_HEAD[4] = { 'S', 'Q', 'E', 'X' };
+	static constexpr char SQEX_MAGIC_HEAD[4] = { 'S', 'Q', 'E', 'X' };
 public:
-	BinaryData FileContent;
+	BinaryData m_fileContent;
 
 	struct SqwtFileHeader
 	{
@@ -18,14 +18,13 @@ public:
 		uint32_t a;
 	};
 
-	SqwtFile(std::wstring path);
+	SqwtFile(std::wstring p_path);
 
 	/**
 	 * @brief 载入文件到内存，若文件已被加密则首先解密。
-	 * @param path 要载入的文件名
+	 * @param p_path 要载入的文件名
 	 */
-	void LoadFile(std::wstring path);
+	void LoadFile(std::wstring p_path);
 
 	void ParseFile();
 };
-

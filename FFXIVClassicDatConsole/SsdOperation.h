@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <iostream>
 #include <filesystem>
@@ -27,7 +27,7 @@ public:
     bool m_force = false;
 
     /**
-     * @brief µ¼³öSqwtµÄSSD¡£ÕâĞ©ÊÇ½çÃæUIÎÄ×Ö¡£
+     * @brief å¯¼å‡ºSqwtçš„SSDã€‚è¿™äº›æ˜¯ç•Œé¢UIæ–‡å­—ã€‚
      */
     // void exportSqwtSsdFiles();
 };

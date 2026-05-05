@@ -1,4 +1,4 @@
-#include "SsdOperation.h"
+ï»¿#include "SsdOperation.h"
 
 #include <fstream>
 
@@ -23,7 +23,7 @@ void SsdOperation::ExportSheet(const std::filesystem::path &p_path, Sheet *p_she
     std::wcout << L"Loading...";
     try
     {
-        // ÈôÐèÒªÍêÈ«µ¼³ö£¬Ôò²»ÄÜºöÂÔ±»enable½ûÓÃµÄÏî¡£ÇÒÐèÒª¼ÇÂ¼Enable
+        // è‹¥éœ€è¦å®Œå…¨å¯¼å‡ºï¼Œåˆ™ä¸èƒ½å¿½ç•¥è¢«enableç¦ç”¨çš„é¡¹ã€‚ä¸”éœ€è¦è®°å½•Enable
         p_sheet->m_cfgIgnoreEnableIndication = m_fullExport;
         p_sheet->LoadAll();
     }
@@ -61,7 +61,7 @@ void SsdOperation::ImportSheet(const std::filesystem::path &p_path, Sheet *p_she
     
     try
     {
-        // ¸üÐÂÄ£Ê½£ºÃ»ÓÐÐ´Ã÷µÄÐÐ½«±£ÁôÔ­Öµ£¬Îª´Ë£¬Ê×ÏÈÔØÈëÔ­Ê¼ÎÄ¼þ
+        // æ›´æ–°æ¨¡å¼ï¼šæ²¡æœ‰å†™æ˜Žçš„è¡Œå°†ä¿ç•™åŽŸå€¼ï¼Œä¸ºæ­¤ï¼Œé¦–å…ˆè½½å…¥åŽŸå§‹æ–‡ä»¶
         if (m_update)
             p_sheet->LoadAll();
         CsvFile csv(path.wstring(), CsvFile::OperationType::Read);
@@ -69,11 +69,11 @@ void SsdOperation::ImportSheet(const std::filesystem::path &p_path, Sheet *p_she
     }
     catch (xybase::InvalidParameterException &ex)
     {
-        std::wcerr << L"µ¼Èë" << p_sheet->ToString() << L"·¢Éú´íÎó¡£"
+        std::wcerr << L"å¯¼å…¥" << p_sheet->ToString() << L"å‘ç”Ÿé”™è¯¯ã€‚"
             << ex.GetErrorCode() << ex.GetMessage() << std::endl;
         return;
     }
-    // Èô´æÔÚEnableÔòÐèÒªµ¼Èë
+    // è‹¥å­˜åœ¨Enableåˆ™éœ€è¦å¯¼å…¥
     if (std::filesystem::exists(p_path / (p_sheet->GetName() + u8"_enable.csv")))
     {
         std::wcout << "Enable Updating...";
@@ -123,8 +123,8 @@ void SsdOperation::ImportSsd(const std::filesystem::path &p_path, const SsdData 
 //{
 //    std::u8string LANG = Config::GetInstance().GetLangName();
 //
-//    // Sqex Sqwt ·ÖÎö¹ÜÀíÆ÷¸ù¾Ý³ÌÐò²»Í¬×Ô¶¯ÇÐ»»£¿
-//    // ³ÌÐò      Ssd          ³õÊ¼»¯µÄsqwt»ùÂ·¾¶
+//    // Sqex Sqwt åˆ†æžç®¡ç†å™¨æ ¹æ®ç¨‹åºä¸åŒè‡ªåŠ¨åˆ‡æ¢ï¼Ÿ
+//    // ç¨‹åº      Ssd          åˆå§‹åŒ–çš„sqwtåŸºè·¯å¾„
 //    // Boot   0x27950000   client\\sqwt\\boot\\ 
 //    // Game   0x01030000   client\\sqwt\\ 
 //    SsdData bootSsd(0x27950000, LANG);
@@ -145,7 +145,7 @@ void SsdOperation::DecryptSsd()
     if (!std::filesystem::exists("type.txt"))
     {
         std::wcout << "type.txt not found. Scan the data folder first.\n";
-        std::wcout << L"ÕÒ²»µ½ type.txt¡£ÇëÏÈÉ¨ÃèÊý¾ÝÎÄ¼þ¼Ð¡£\n";
+        std::wcout << L"æ‰¾ä¸åˆ° type.txtã€‚è¯·å…ˆæ‰«ææ•°æ®æ–‡ä»¶å¤¹ã€‚\n";
         return;
     }
 
@@ -182,7 +182,7 @@ void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path, const std::
     if (!std::filesystem::exists("type.txt"))
     {
         std::wcout << "type.txt not found. Scan the data folder first.\n";
-        std::wcout << L"ÕÒ²»µ½ type.txt¡£ÇëÏÈÉ¨ÃèÊý¾ÝÎÄ¼þ¼Ð¡£\n";
+        std::wcout << L"æ‰¾ä¸åˆ° type.txtã€‚è¯·å…ˆæ‰«ææ•°æ®æ–‡ä»¶å¤¹ã€‚\n";
         return;
     }
 
@@ -198,7 +198,7 @@ void SsdOperation::ExportAllSsd(const std::filesystem::path &p_path, const std::
             std::ifstream f(path, std::ios::binary);
 
             SsdData ssd(path, Config::GetInstance().GetLangName());
-            // ½ûÖ¹ÔØÈë×ÓÏî£¬±ÜÃâÖØ¸´²Ù×÷
+            // ç¦æ­¢è½½å…¥å­é¡¹ï¼Œé¿å…é‡å¤æ“ä½œ
             ssd.m_recursive = false;
             ExportSsd(p_path, ssd, p_sheet);
         }
@@ -210,7 +210,7 @@ void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path, const std::
     if (!std::filesystem::exists("type.txt"))
     {
         std::wcout << "type.txt not found. Scan the data folder first.\n";
-        std::wcout << L"ÕÒ²»µ½ type.txt¡£ÇëÏÈÉ¨ÃèÊý¾ÝÎÄ¼þ¼Ð¡£\n";
+        std::wcout << L"æ‰¾ä¸åˆ° type.txtã€‚è¯·å…ˆæ‰«ææ•°æ®æ–‡ä»¶å¤¹ã€‚\n";
         return;
     }
 
@@ -226,7 +226,7 @@ void SsdOperation::ImportAllSsd(const std::filesystem::path &p_path, const std::
             std::ifstream f(path, std::ios::binary);
 
             SsdData ssd(path, Config::GetInstance().GetLangName());
-            // ½ûÖ¹ÔØÈë×ÓÏî£¬±ÜÃâÖØ¸´²Ù×÷
+            // ç¦æ­¢è½½å…¥å­é¡¹ï¼Œé¿å…é‡å¤æ“ä½œ
             ssd.m_recursive = false;
             ImportSsd(p_path, ssd, p_sheet);
         }

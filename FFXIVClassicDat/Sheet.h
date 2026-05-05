@@ -58,54 +58,48 @@ public:
 
 	Sheet(const Sheet &) = delete;
 
-	Sheet(Sheet && p_movee) noexcept;
+	Sheet(Sheet &&movee) noexcept;
 
 	~Sheet();
 
 	const std::u8string &GetName() const;
 
 	/**
-	 * @brief 将已经载入的数据写入给定的Csv流
-	 * @param p_csv 
+	 * @brief 将已加载的数据写入指定的CSV流。
+	 * @param csv 目标CSV流。
 	 */
-	void SaveToCsv(CsvFile &p_csv) const;
+	void SaveToCsv(CsvFile &csv) const;
 
 	/**
-	 * @brief 从给定的Csv流中读取数据
-	 * @param p_csv 
+	 * @brief 从指定的CSV流中读取数据。
+	 * @param csv 源CSV流。
 	 */
-	void LoadFromCsv(CsvFile &p_csv);
+	void LoadFromCsv(CsvFile &csv);
 
-	/**
-	 * @brief 读取所有区块
-	 */
+	/** @brief 加载所有数据块。 */
 	void LoadAll();
 
 	/**
-	 * @brief 载入指定行所在的整个区块（若已加载则忽略
-	 * @param row 要载入的行
+	 * @brief 加载包含指定行的整个块（如果已加载则跳过）。
+	 * @param row 要加载的行。
 	 */
 	void LoadRow(int row);
 
-	/**
-	 * @brief 卸载所有加载的区块。
-	 */
+	/** @brief 卸载所有已加载的数据块。 */
 	void UnloadAll();
 
-	/**
-	 * @brief 保存所有区块。未被加载的区块或行将被置空。
-	 */
+	/** @brief 保存所有数据块。未加载的块或行将被清空。 */
 	void SaveAll();
 
 	/**
 	 * @brief 保存此表的Enable项到Csv文件中
-	 * @param p_csv 
+	 * @param p_csv 的CSV文件。
 	 */
-	void EnableToCsv(CsvFile &p_csv) const;
+	void EnableToCsv(CsvFile &csv) const;
 
 	/**
 	 * @brief 从Csv文件中读取此表的Enable
-	 * @param p_csv 
+	 * @param csv 源CSV文件
 	 */
 	void EnableFromCsv(CsvFile &p_csv);
 
@@ -113,6 +107,7 @@ public:
 
 	/**
 	 * @brief 块数据。索引元数据。每个Sheet由若干个 file 保存。这里记录每个 block/file 的关联信息。
+	 *        Records association info for each block/file.
 	 */
 	struct BlockInfo
 	{
@@ -144,13 +139,13 @@ public:
 
 		Cell();
 
-		Cell(DataType p_type);
+		Cell(DataType type);
 
-		Cell(const Cell &p_pat);
+		Cell(const Cell &other);
 
-		Cell(Cell &&p_movee) noexcept;
+		Cell(Cell &&movee) noexcept;
 
-		const Cell &operator=(const Cell &p_rval);
+		const Cell &operator=(const Cell &other);
 
 		template<typename T>
 		T Get() const;
@@ -256,9 +251,9 @@ public:
 	class Row
 	{
 	public:
-		Row(int columnCount, int* pe_indices);
+		Row(int columnCount, int* indices);
 
-		Row(Row &&p_movee) noexcept;
+		Row(Row &&movee) noexcept;
 
 		virtual ~Row() {};
 
@@ -274,15 +269,15 @@ public:
 	protected:
 		std::vector<Cell> m_cells;
 		int m_cellCur = 0, m_cellCount;
-		int *me_indices;
+		int *m_indices;
 	};
 
 	// スキーマです。
-	// ローの読込みを制御し、再入力されたデータを検証できる。
+	// ローの読み込みを制御し、再入力されたデータを検証できる。
 	class Schema
 	{
 	public:
-		void Append(const std::u8string &p_type);
+		void Append(const std::u8string &type);
 
 		void Clear();
 
@@ -290,24 +285,24 @@ public:
 
 		/**
 		 * @brief 读取一行的数据
-		 * @param p_row 数据要保存到的行对象
-		 * @param p_dataStream 数据流
+		 * @param row 数据要保存到的行对象
+		 * @param dataStream 数据流
 		 * @param limit 最大流位置：一个数据记录可能提早结束。
 		 */
-		virtual void ReadRow(Row& p_row, xybase::BinaryStream &p_dataStream, size_t limit);
+		virtual void ReadRow(Row& row, xybase::BinaryStream &dataStream, size_t limit);
 
 		/**
 		 * @brief 写入一行的数据
-		 * @param p_row 数据来源的对象
-		 * @param p_dataStream 要写入的数据流
-		 * @param p_offsetStream 要写入偏移的数据流
+		 * @param row 数据来源的对象
+		 * @param dataStream 要写入的数据流
+		 * @param offsetStream 要写入偏移的数据流
 		 */
-		virtual void WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStream, xybase::BinaryStream &p_offsetStream);
+		virtual void WriteRow(const Row &row, xybase::BinaryStream &dataStream, xybase::BinaryStream &offsetStream);
 
-		// TODO: Implement this!
-		// virtual void WriteRow(xybase::BinaryStream &p_dataStream, const Row &p_row);
+		/* TODO: Implement this! */
+		// virtual void WriteRow(xybase::BinaryStream &dataStream, const Row &row);
 
-		static std::u8string GetTypeName(DataType p_type);
+		static std::u8string GetTypeName(DataType type);
 
 	private:
 		std::list<DataType> m_schema;
@@ -315,13 +310,13 @@ public:
 
 	/**
 	 * @brief 初始化时用，添加索引元数据
-	 * @param idx
+	 * @param idx 索引
 	 */
 	void AppendIndex(int idx);
 
 	/**
 	 * @brief 初始化时用，添加区块元数据
-	 * @param block
+	 * @param block 区块信息
 	 */
 	void AppendBlock(const BlockInfo &block);
 
@@ -352,7 +347,6 @@ protected:
 	std::map<int, Row> m_rows;
 private:
 
-	void LoadBlock(const BlockInfo &p_block);
-	void SaveBlock(const BlockInfo &p_block);
+	void LoadBlock(const BlockInfo &block);
+	void SaveBlock(const BlockInfo &block);
 };
-

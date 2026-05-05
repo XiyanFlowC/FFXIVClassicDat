@@ -21,7 +21,7 @@ public:
 
 	std::u8string NextCell();
 
-	void NewCell(const std::u8string &p_str);
+	void NewCell(const std::u8string &value);
 
 	void NextLine();
 

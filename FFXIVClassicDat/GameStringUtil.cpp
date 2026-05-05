@@ -9,31 +9,31 @@
 #include <cassert>
 #include "xybase/xystring.h"
 
-GameStringUtil::TagDefinition GameStringUtil::defs[] =
+GameStringUtil::TagDefinition GameStringUtil::s_defs[] =
 {
-	/*{u8"If", &GameStringUtil::DecodeTagIf, nullptr, GameStringUtil::Tag::If},
+	/*{u8"If", &GameStringUtil::DecodeTagIf, nullptr, GameStringUtil::Tag::IF},
 	{u8"LF", nullptr, nullptr, GameStringUtil::Tag::LineBreak},
-	{nullptr, nullptr, nullptr, 0, 0, 0, GameStringUtil::Tag::None},*/
-	{u8"If", 2, 3, GameStringUtil::Tag::If},
-	{u8"LF", 0, 0, GameStringUtil::Tag::LineFeed},
-	{u8"Value", 1, 1, GameStringUtil::Tag::Value},
-	{u8"Value2", 1, 1, GameStringUtil::Tag::Value2},
-	{u8"Highlight", 1, 1, Tag::Highlight},
-	{u8"Switch", 1, 255, Tag::Switch},
-	{u8"Sheet", 2, 255, Tag::Sheet},
-	{u8"Color", 1, 255, Tag::Color},
-	{u8"Color2", 1, 255, Tag::Color2},
-	{u8"Icon", 1, 255, Tag::Icon},
-	{u8"Format", 1, 255, Tag::Format},
-	{u8"Clickable", 1, 255, Tag::Clickable},
-	{u8"Split", 1, 255, Tag::Split},
-	{u8"Emphasis", 1, 255, Tag::Emphasis},
-	{u8"Time", 1, 255, Tag::Time},
-	{u8"Time2", 1, 255, Tag::Time2},
-	{u8"Indent", 1, 255, Tag::Indent},
-	{u8"Dash", 1, 255, Tag::Dash},
-	{u8"TwoDigitValue", 1, 255, Tag::TwoDigitValue},
-	{nullptr, 0, 0, GameStringUtil::Tag::None},
+	{nullptr, nullptr, nullptr, 0, 0, 0, GameStringUtil::Tag::NONE},*/
+	{u8"If", 2, 3, GameStringUtil::Tag::IF},
+	{u8"LF", 0, 0, GameStringUtil::Tag::LINE_FEED},
+	{u8"Value", 1, 1, GameStringUtil::Tag::VALUE},
+	{u8"Value2", 1, 1, GameStringUtil::Tag::VALUE2},
+	{u8"Highlight", 1, 1, Tag::HIGHLIGHT},
+	{u8"Switch", 1, 255, Tag::SWITCH},
+	{u8"Sheet", 2, 255, Tag::SHEET},
+	{u8"Color", 1, 255, Tag::COLOR},
+	{u8"Color2", 1, 255, Tag::COLOR2},
+	{u8"Icon", 1, 255, Tag::ICON},
+	{u8"Format", 1, 255, Tag::FORMAT},
+	{u8"Clickable", 1, 255, Tag::CLICKABLE},
+	{u8"Split", 1, 255, Tag::SPLIT},
+	{u8"Emphasis", 1, 255, Tag::EMPHASIS},
+	{u8"Time", 1, 255, Tag::TIME},
+	{u8"Time2", 1, 255, Tag::TIME2},
+	{u8"Indent", 1, 255, Tag::INDENT},
+	{u8"Dash", 1, 255, Tag::DASH},
+	{u8"TwoDigitValue", 1, 255, Tag::TWO_DIGIT_VALUE},
+	{nullptr, 0, 0, GameStringUtil::Tag::NONE},
 };
 
 std::u8string GameStringUtil::Decode(std::string_view p_str)
@@ -128,7 +128,7 @@ std::string GameStringUtil::Parse(const char8_t *p_str)
 
 long long GameStringUtil::DecodeMultibyteInteger(std::string_view p_str, int &p_outLength)
 {
-	// holy fuck the char is signed?!!
+	/* The char type is signed. */
 	uint8_t type = p_str[0];
 	if (type < 0xF0 || type == 0xFF)
 		throw xybase::InvalidParameterException(L"m_str[m_pos]", L"Invalid integer specifier.", 145701);
@@ -474,14 +474,14 @@ std::string GameStringUtil::ParseNumber()
 
 std::string GameStringUtil::ParseTag()
 {
-	// 获取Tag
+	/* Get tag */
 	size_t eot = m_str.find_first_of("(>", m_pos);
 	if (eot == std::string_view::npos) throw xybase::InvalidParameterException(L"m_str", L"Invalid tag start!", 126701);
 	std::string_view tag = m_str.substr(m_pos, eot - m_pos);
-	// 为读取参数/继续读取做好准备
+	/* Prepare for reading parameters or continue reading */
 	m_pos = eot + 1;
 
-	auto *ptr = defs;
+	auto *ptr = s_defs;
 	while (ptr->name)
 	{
 		if ((const char *)ptr->name == tag)
@@ -557,27 +557,27 @@ std::string GameStringUtil::ParseExpression()
 	auto op = m_str.substr(m_pos, 2);
 	if (op == "lt")
 	{
-		ret += Operator::LessThan;
+		ret += Operator::LESS_THAN;
 	}
 	else if (op == "gt")
 	{
-		ret += Operator::GreaterThan;
+		ret += Operator::GREATER_THAN;
 	}
 	else if (op == "ge")
 	{
-		ret += Operator::GreaterThanOrEqualTo;
+		ret += Operator::GREATER_THAN_OR_EQUAL_TO;
 	}
 	else if (op == "le")
 	{
-		ret += Operator::LessThanOrEqualTo;
+		ret += Operator::LESS_THAN_OR_EQUAL_TO;
 	}
 	else if (op == "eq")
 	{
-		ret += Operator::Equal;
+		ret += Operator::EQUAL;
 	}
 	else if (op == "ne")
 	{
-		ret += Operator::NotEqual;
+		ret += Operator::NOT_EQUAL;
 	}
 	else
 		throw xybase::InvalidParameterException(L"op", L"Invalid operator.", 56501);
@@ -608,21 +608,21 @@ std::string GameStringUtil::ParseVariable()
 		auto type = m_str.substr(m_pos, pend - m_pos);
 		m_pos = pend;
 		if (type == "msec")
-			ret += TimeMilliSecond;
+			ret += TIME_MILLI_SECOND;
 		else if (type == "sec")
-			ret += TimeSecond;
+			ret += TIME_SECOND;
 		else if (type == "min")
-			ret += TimeMinute;
+			ret += TIME_MINUTE;
 		else if (type == "hour")
-			ret += TimeHour;
+			ret += TIME_HOUR;
 		else if (type == "wday")
-			ret += TimeWDay;
+			ret += TIME_W_DAY;
 		else if (type == "mday")
-			ret += TimeMDay;
+			ret += TIME_M_DAY;
 		else if (type == "mon")
-			ret += TimeMon;
+			ret += TIME_MON;
 		else if (type == "year")
-			ret += TimeYear;
+			ret += TIME_YEAR;
 		else
 			throw xybase::InvalidParameterException(L"TimeType",
 				std::format(L"Unknown Time Type {}", xybase::string::to_wstring(std::string(type))), 60801);
@@ -630,19 +630,19 @@ std::string GameStringUtil::ParseVariable()
 	else {
 		if (category == "plyr")
 		{
-			ret += PlayerParameter;
+			ret += PLAYER_PARAMETER;
 		}
 		else if (category == "int")
 		{
-			ret += IntegerParameter;
+			ret += INTEGER_PARAMETER;
 		}
 		else if (category == "obj")
 		{
-			ret += ObjectParameter;
+			ret += OBJECT_PARAMETER;
 		}
 		else if (category == "str")
 		{
-			ret += StringParameter;
+			ret += STRING_PARAMETER;
 		}
 		else
 			throw xybase::InvalidParameterException(L"category",
@@ -659,7 +659,7 @@ std::string GameStringUtil::ParseVariable()
 
 void GameStringUtil::DecodeTag(const uint8_t tag)
 {
-	TagDefinition *def = defs;
+	TagDefinition *def = s_defs;
 
 	int step;
 	long long tagLength = DecodeInteger(m_str.substr(m_pos, 5), step);
@@ -676,7 +676,7 @@ void GameStringUtil::DecodeTag(const uint8_t tag)
 		throw xybase::InvalidParameterException(L"m_str", L"No terminator found.", 119251);
 	}
 
-	m_pos += tagLength + 1; // prepare for next read
+	m_pos += tagLength + 1; /** prepare for next read */
 
 	while (def->name)
 	{
@@ -692,7 +692,7 @@ void GameStringUtil::DecodeTag(const uint8_t tag)
 			}
 			else
 			{
-				// 无法处理参数，但获取到了参数
+				/* Cannot process parameters, but parameters were obtained */
 				if (!param.empty())
 					throw xybase::InvalidParameterException(L"m_str", L"No handler to handle the param.", 119252);
 			}
@@ -711,8 +711,8 @@ void GameStringUtil::DecodeTag(const uint8_t tag)
 
 	std::wcerr << std::format(L"Unknown tag {:02X}.", (int)tag) << std::endl;
 
-	// 放弃解析，原样输出，祈祷不炸
-	// 算了炸一下直到我全部修好
+	/* Abandon parsing, output as-is, hope it doesn't break */
+	/* Let it break until everything is fixed */
 	//throw xybase::InvalidParameterException(L"tag", std::format(L"Unknown tag {:02X}.", (int)tag), 176010);
 	// m_sb += tag;
 }
@@ -737,7 +737,7 @@ void GameStringUtil::DecodeParameter(int p_argCount, int p_argMax, std::string_v
 
 void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 {
-	// 确认类型
+	/* Confirm type */
 	if (IsLeadingFlag(p_val[0]))
 	{
 		int step = 0;
@@ -746,22 +746,22 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 		{
 			switch ((Operator)p_val[0])
 			{
-			case GreaterThan:
+			case GREATER_THAN:
 				m_sb += "@gt";
 				break;
-			case GreaterThanOrEqualTo:
+			case GREATER_THAN_OR_EQUAL_TO:
 				m_sb += "@ge";
 				break;
-			case LessThan:
+			case LESS_THAN:
 				m_sb += "@lt";
 				break;
-			case LessThanOrEqualTo:
+			case LESS_THAN_OR_EQUAL_TO:
 				m_sb += "@le";
 				break;
-			case Equal:
+			case EQUAL:
 				m_sb += "@eq";
 				break;
-			case NotEqual:
+			case NOT_EQUAL:
 				m_sb += "@ne";
 				break;
 			default:
@@ -780,28 +780,28 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 			m_sb += "$time(";
 			switch ((TimeVariable)p_val[0])
 			{
-			case GameStringUtil::TimeMilliSecond:
+			case TIME_MILLI_SECOND:
 				m_sb += "msec";
 				break;
-			case GameStringUtil::TimeSecond:
+			case TIME_SECOND:
 				m_sb += "sec";
 				break;
-			case GameStringUtil::TimeMinute:
+			case TIME_MINUTE:
 				m_sb += "min";
 				break;
-			case GameStringUtil::TimeHour:
+			case TIME_HOUR:
 				m_sb += "hour";
 				break;
-			case GameStringUtil::TimeMDay:
+			case TIME_M_DAY:
 				m_sb += "mday";
 				break;
-			case GameStringUtil::TimeWDay:
+			case TIME_W_DAY:
 				m_sb += "wday";
 				break;
-			case GameStringUtil::TimeMon:
+			case TIME_MON:
 				m_sb += "mon";
 				break;
-			case GameStringUtil::TimeYear:
+			case TIME_YEAR:
 				m_sb += "year";
 				break;
 			default:
@@ -821,16 +821,16 @@ void GameStringUtil::DecodeValue(std::string_view p_val, int &p_outLength)
 		{
 			switch ((ParameterVariable)p_val[0])
 			{
-			case StringParameter:
+			case STRING_PARAMETER:
 				m_sb += "$str(";
 				break;
-			case ObjectParameter:
+			case OBJECT_PARAMETER:
 				m_sb += "$obj(";
 				break;
-			case IntegerParameter:
+			case INTEGER_PARAMETER:
 				m_sb += "$int(";
 				break;
-			case PlayerParameter:
+			case PLAYER_PARAMETER:
 				m_sb += "$plyr(";
 				break;
 			default:
@@ -867,7 +867,7 @@ bool GameStringUtil::IsOperator(uint8_t type)
 
 bool GameStringUtil::IsStringVariable(uint8_t type)
 {
-	return type == StringParameter || type == ObjectParameter || type == 0xFF;
+	return type == STRING_PARAMETER || type == OBJECT_PARAMETER || type == 0xFF;
 }
 
 bool GameStringUtil::IsParameterVariable(uint8_t type)

@@ -3,7 +3,6 @@
 class SimpleString
 {
 public:
-	int Decrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng);
-	int Encrypt(void *p_src, int p_srcLeng, void *p_dst, int p_dstLeng);
+	int Decrypt(void *srcData, int srcLen, void *dstData, int dstLen);
+	int Encrypt(void *srcData, int srcLen, void *dstData, int dstLen);
 };
-

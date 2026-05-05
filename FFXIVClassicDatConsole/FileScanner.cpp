@@ -1,4 +1,4 @@
-#include "FileScanner.h"
+ï»¿#include "FileScanner.h"
 
 #include <cstring>
 #include <string>
@@ -110,8 +110,8 @@ int FileScanner::GetXmlType(BinaryData &bd)
 
 int FileScanner::IsOgg(BinaryData &bd)
 {
-    // Ogg ÔÚ SEDBÀï£¬Èç´Ë±£´æµÄ 
-    // ½âÎöSEDB²Å¿ÉÒÔ³é³ö
+    // Ogg åœ¨ SEDBé‡Œï¼Œå¦‚æ­¤ä¿å­˜çš„ 
+    // è§£æSEDBæ‰å¯ä»¥æŠ½å‡º
     return 0;
 }
 
@@ -176,13 +176,13 @@ void FileScanner::FileDetect(std::ofstream &recorder, const std::filesystem::dir
     }
     else if (memcmp("VfxGraphResourceData", bd.GetData(), 20) == 0)
     {
-        // Ä³ÖÖË÷ÒıÎÄ¼ş£¿
+        // æŸç§ç´¢å¼•æ–‡ä»¶ï¼Ÿ
         recorder << "VGRD" << "\t" << ent.path() << std::endl;
         std::wcout << L"VGRD!\n";
     }
     else if (memcmp("MapLayoutResourceData", bd.GetData(), 20) == 0)
     {
-        // Ä³ÖÖË÷ÒıÎÄ¼ş£¿ÀïÃæ»¹ÈûÁËSEDB
+        // æŸç§ç´¢å¼•æ–‡ä»¶ï¼Ÿé‡Œé¢è¿˜å¡äº†SEDB
         recorder << "MLRD" << "\t" << ent.path() << std::endl;
         std::wcout << L"MLRD!\n";
     }
@@ -191,7 +191,7 @@ void FileScanner::FileDetect(std::ofstream &recorder, const std::filesystem::dir
         recorder << "DDS" << "\t" << ent.path() << std::endl;
         std::wcout << L"DDS!\n";
     }
-    // ²»¾ß±¸¼ÇÂ¼¼ÛÖµ
+    // ä¸å…·å¤‡è®°å½•ä»·å€¼
     /*else if (memcmp("SEDB", bd.GetData(), 4) == 0)
     {
         recorder << "SEDB" << "\t" << ent.path() << std::endl;
@@ -213,11 +213,11 @@ void FileScanner::FileDetect(std::ofstream &recorder, const std::filesystem::dir
 void FileScanner::FileScan()
 {
     std::filesystem::path dataPath = Config::GetInstance().GetGamePath() / L"data";
-    std::wcout << L"É¨ÃèÄ¿Â¼£º" << dataPath << std::endl;
+    std::wcout << L"æ‰«æç›®å½•ï¼š" << dataPath << std::endl;
 
     if (std::filesystem::exists("type.txt"))
     {
-        std::wcout << L"ÕÒµ½ÁËÉÏÒ»´ÎµÄÉ¨Ãè½á¹û¡£ÒªÔÙ¶ÈÉ¨ÃèÊ±£¬ÇëÏÈÉ¾³ı type.txt¡£" << std::endl;
+        std::wcout << L"æ‰¾åˆ°äº†ä¸Šä¸€æ¬¡çš„æ‰«æç»“æœã€‚è¦å†åº¦æ‰«ææ—¶ï¼Œè¯·å…ˆåˆ é™¤ type.txtã€‚" << std::endl;
         return;
     }
 

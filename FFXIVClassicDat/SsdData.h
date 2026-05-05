@@ -7,14 +7,19 @@
 
 class Sheet;
 
+/**
+ * @brief SSD 数据解析器 — 解析索引数据表的 SSD 文件（XML）
+ * 
+ * 包括数据表的结构定义、数据块信息、以及数据块的启用提示等。提供对解析结果的访问接口。
+ */
 class SsdData
 {
 public:
 	SsdData();
 
-	SsdData(uint32_t p_fileId, const std::u8string &p_language);
+	SsdData(uint32_t fileId, const std::u8string &language);
 
-	SsdData(const std::wstring &path, const std::u8string &p_language);
+	SsdData(const std::wstring &path, const std::u8string &language);
 
 	~SsdData();
 
@@ -27,7 +32,7 @@ public:
 	std::list<Sheet *> GetAllSheets() const;
 
 	/**
-	 * @brief ָʾ�Ƿ���Խ��� infofile ���ԡ���Ϊ false ����� infofile��
+	 * @brief 指示是否可以解析 infofile 属性。若为 false 则忽略 infofile。
 	 */
 	bool m_recursive = true;
 private:
@@ -40,8 +45,6 @@ private:
 	std::map<std::u8string, Sheet *> m_sheets;
 	std::u8string m_language;
 	uint32_t m_fileId;
-	// uint8_t m_isSheetsParsed : 1 = 0;
 	uint8_t m_isSsdParsed : 1 = 0;
 	uint8_t m_isModified : 1 = 0;
 };
-

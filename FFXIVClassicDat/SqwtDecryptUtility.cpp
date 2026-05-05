@@ -2,11 +2,11 @@
 
 #include <cstring>
 
-void SqwtDecryptUtility::EncryptCell(uint32_t *p_l, uint32_t *p_r)
+void BlowFish::EncryptCell(uint32_t *mod1, uint32_t *mod2)
 {
-    uint32_t l = *p_l, r = *p_r;
-    uint32_t *p = (uint32_t *)pbox;
-    uint32_t *s = (uint32_t *)sbox;
+    uint32_t l = *mod1, r = *mod2;
+    uint32_t *p = (uint32_t *)m_pbox;
+    uint32_t *s = (uint32_t *)m_sbox;
     for (int i = 16; i >= 1; --i)
     {
         uint32_t t = *p++ ^ l;
@@ -19,15 +19,15 @@ void SqwtDecryptUtility::EncryptCell(uint32_t *p_l, uint32_t *p_r)
 
         r = t;
     }
-    *p_r = l ^ ((uint32_t *)pbox)[16];
-    *p_l = r ^ ((uint32_t *)pbox)[17];
+    *mod2 = l ^ ((uint32_t *)m_pbox)[16];
+    *mod1 = r ^ ((uint32_t *)m_pbox)[17];
 }
 
-void SqwtDecryptUtility::DecryptCell(uint32_t *p_l, uint32_t *p_r)
+void BlowFish::DecryptCell(uint32_t *mod1, uint32_t *mod2)
 {
-    uint32_t l = *p_l, r = *p_r;
-    uint32_t *curKey = ((uint32_t *)pbox) + 17;
-    uint32_t *key = (uint32_t *)sbox;
+    uint32_t l = *mod1, r = *mod2;
+    uint32_t *curKey = ((uint32_t *)m_pbox) + 17;
+    uint32_t *key = (uint32_t *)m_sbox;
     for (int i = 16; i >= 1; --i)
     {
         uint32_t v10 = *curKey-- ^ l;
@@ -40,16 +40,16 @@ void SqwtDecryptUtility::DecryptCell(uint32_t *p_l, uint32_t *p_r)
 
         r = v10;
     }
-    *p_l = r ^ ((uint32_t *)pbox)[0];
-    *p_r = l ^ ((uint32_t *)pbox)[1];
+    *mod1 = r ^ ((uint32_t *)m_pbox)[0];
+    *mod2 = l ^ ((uint32_t *)m_pbox)[1];
 }
 
-SqwtDecryptUtility::SqwtDecryptUtility(const char *phrase, int keyLength)
+BlowFish::BlowFish(const char *phrase, int keyLength)
 {
     MakeKey(phrase, keyLength);
 }
 
-void SqwtDecryptUtility::Decrypt(void *dst, void *src, size_t length)
+void BlowFish::Decrypt(void *dst, void *src, size_t length)
 {
     memcpy(dst, src, length);
 
@@ -61,12 +61,12 @@ void SqwtDecryptUtility::Decrypt(void *dst, void *src, size_t length)
     }
 }
 
-SqwtDecryptUtility *SqwtDecryptUtility::MakeKey(const char *key, int keyLength)
+BlowFish *BlowFish::MakeKey(const char *key, int keyLength)
 {
-    memcpy(sbox, SqwtKeyStore::sbox, 0x1000);
-    memcpy(pbox, SqwtKeyStore::pbox, 72);
+    memcpy(m_sbox, BlowFishKeyBox::sbox, 0x1000);
+    memcpy(m_pbox, BlowFishKeyBox::pbox, 72);
 
-    // 子密钥生成
+    /* Subkey generation */
     int idx = 0;
     for (int i = 0; i < 18; ++i)
     {
@@ -82,18 +82,18 @@ SqwtDecryptUtility *SqwtDecryptUtility::MakeKey(const char *key, int keyLength)
         res = (key[(idx)] | res);
         idx += 1;
         if (idx >= keyLength) idx = 0;
-        ((uint32_t *)pbox)[i] ^= res;
+        ((uint32_t *)m_pbox)[i] ^= res;
     }
 
     uint32_t mod1 = 0, mod2 = 0;
     for (int i = 0; i < 18; i += 2)
     {
         EncryptCell(&mod1, &mod2);
-        ((uint32_t *)pbox)[i] = mod1;
-        ((uint32_t *)pbox)[i + 1] = mod2;
+        ((uint32_t *)m_pbox)[i] = mod1;
+        ((uint32_t *)m_pbox)[i + 1] = mod2;
     }
 
-    uint32_t *cur = (uint32_t *)sbox;
+    uint32_t *cur = (uint32_t *)m_sbox;
     for (int i = 0; i < 4; ++i)
         for (int j = 0; j < 128; ++j)
         {
@@ -106,10 +106,7 @@ SqwtDecryptUtility *SqwtDecryptUtility::MakeKey(const char *key, int keyLength)
     return this;
 }
 
-// 好了现在我知道这玩意是什么了
-// 但是重新写一遍挺麻烦的
-// 所以就这样吧，反正能跑
-uint8_t SqwtDecryptUtility::SqwtKeyStore::sbox[] = {
+uint8_t BlowFish::BlowFishKeyBox::sbox[] = {
     0xA6, 0xB, 0x31, 0xD1, 0xAC, 0xB5, 0xDF, 0x98, 0xDB, 0x72, 0xFD, 0x2F, 0xB7, 0xDF, 0x1A, 0xD0,
     0xED, 0xAF, 0xE1, 0xB8, 0x96, 0x7E, 0x26, 0x6A, 0x45, 0x90, 0x7C, 0xBA, 0x99, 0x7F, 0x2C, 0xF1,
     0x47, 0x99, 0xA1, 0x24, 0xF7, 0x6C, 0x91, 0xB3, 0xE2, 0xF2, 0x1, 0x8, 0x16, 0xFC, 0x8E, 0x85,
@@ -368,7 +365,7 @@ uint8_t SqwtDecryptUtility::SqwtKeyStore::sbox[] = {
     0x32, 0x61, 0x4E, 0xB7, 0x5B, 0xE2, 0x77, 0xCE, 0xE3, 0xDF, 0x8F, 0x57, 0xE6, 0x72, 0xC3, 0x3A
 };
 
-uint8_t SqwtDecryptUtility::SqwtKeyStore::pbox[] = {
+uint8_t BlowFish::BlowFishKeyBox::pbox[] = {
     0x88, 0x6A, 0x3F, 0x24, 0xD3, 0x8, 0xA3, 0x85, 0x2E, 0x8A, 0x19, 0x13, 0x44, 0x73, 0x70, 0x3,
     0x22, 0x38, 0x9, 0xA4, 0xD0, 0x31, 0x9F, 0x29, 0x98, 0xFA, 0x2E, 0x8, 0x89, 0x6C, 0x4E, 0xEC,
     0xE6, 0x21, 0x28, 0x45, 0x77, 0x13, 0xD0, 0x38, 0xCF, 0x66, 0x54, 0xBE, 0x6C, 0xC, 0xE9, 0x34,

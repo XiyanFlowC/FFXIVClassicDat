@@ -3,31 +3,34 @@
 #include <cstdint>
 
 /**
- * @brief 解密，从逆向结果恩抄的
- * 2024/9/8 喵的是BlowFish - 重构，重命名很花时间，所以只要知道这个实际上是BlowFish的标准实现就好了。
+ * @brief BlowFish decryption utility.
+ *
+ * Reverse-engineered from the game binary.
+ * 2024/9/8 - This is actually a standard BlowFish implementation.
+ * Refactored with proper naming for readability.
  */
-class SqwtDecryptUtility
+class BlowFish
 {
 public:
-	uint8_t pbox[72];
-	uint8_t sbox[0x1000];
+	uint8_t m_pbox[72];
+	uint8_t m_sbox[0x1000];
 
-	SqwtDecryptUtility(const char *phrase, int keyLength);
+	BlowFish(const char *phrase, int keyLength);
 
-	SqwtDecryptUtility *MakeKey(const char *phrase, int keyLength);
+	BlowFish *MakeKey(const char *phrase, int keyLength);
 
 	void Decrypt(void *dst, void *src, size_t length);
 
-	class SqwtKeyStore
+	class BlowFishKeyBox
 	{
     public:
 		/**
-		 * @brief ffxivboot.exe:FB9FE0
+		 * @brief Default S-box table (ffxivboot.exe:0xFB9FE0).
 		 */
         static uint8_t sbox[0x1000];
 
 		/**
-		 * @brief ffxivboot.exe:FB9F98
+		 * @brief Default P-box table (ffxivboot.exe:0xFB9F98).
 		 */
 		static uint8_t pbox[72];
 	};
@@ -36,4 +39,3 @@ private:
 
 	void DecryptCell(uint32_t *mod1, uint32_t *mod2);
 };
-

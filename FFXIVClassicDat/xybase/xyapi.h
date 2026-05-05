@@ -43,4 +43,10 @@
 
 #endif /*XY_STATIC*/
 
+#ifndef XY_IGNORE_DEPRECATED
+#define XY_DEPRECATED [[deprecated]]
+#else
+#define XY_DEPRECATED
+#endif
+
 #endif

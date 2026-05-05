@@ -3,31 +3,31 @@
 #include <cstring>
 #include <assert.h>
 
-int ShuffleString::Decrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
+int ShuffleString::Decrypt(void *srcData, int srcLen, void *dstData, int dstLen)
 {
-	char *src = (char *)p_src;
-	// ShuffleString 加密标志：最后一个字节为-15（0xF1
-	// 标志以外为加密的字符串数据
-	if (!src || src[srcLeng - 1] != -15)
+	char *src = (char *)srcData;
+
+	/* ShuffleString encryption marker: last byte is 0xF1 (-15).
+	 *  Everything before the marker is the encrypted string data. */
+	if (!src || src[srcLen - 1] != -15)
 	{
-		// 非加密数据
 		return -1;
 	}
-	if (!p_dst)
+	if (!dstData)
 	{
 		return -2;
 	}
-	if (srcLeng - 1 > dstLeng)
+	if (srcLen - 1 > dstLen)
 	{
 		return -3;
 	}
-	if (p_src != p_dst)
-		memcpy(p_dst, p_src, srcLeng - 1);
+	if (srcData != dstData)
+		memcpy(dstData, srcData, srcLen - 1);
 
-	Shuffle(p_dst, srcLeng - 1);
+	Shuffle(dstData, srcLen - 1);
 	uint16_t a, b;
-	GetFactors(srcLeng - 1, &a, &b);
-	char *cur = (char *)p_dst, *end = ((char *)p_dst) + srcLeng - 1;
+	GetFactors(srcLen - 1, &a, &b);
+	char *cur = (char *)dstData, *end = ((char *)dstData) + srcLen - 1;
 	
 	while (cur < end)
 	{
@@ -35,49 +35,49 @@ int ShuffleString::Decrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 		cur += 4;
 	}
 
-	cur = ((char *)p_dst) + 2;
+	cur = ((char *)dstData) + 2;
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= b;
 		cur += 4;
 	}
 
-	if ((srcLeng - 1) & 1)
+	if ((srcLen - 1) & 1)
 	{
 		*(end - 1) ^= (uint8_t)(b & 0xFF);
 	}
 
-	return srcLeng - 1;
+	return srcLen - 1;
 }
 
-int ShuffleString::Encrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
+int ShuffleString::Encrypt(void *srcData, int srcLen, void *dstData, int dstLen)
 {
-	// 该实现尚未确认其有效性。
-	char *src = (char *)p_src;
-	char *dst = (char *)p_dst;
-	// ShuffleString 加密标志：最后一个字节为-15（0xF1
-	// 标志以外为加密的字符串数据
-	if (!src || src[srcLeng - 1] == -15)
+	/* This implementation has not been fully verified. */
+	char *src = (char *)srcData;
+	char *dst = (char *)dstData;
+
+	/* ShuffleString encryption marker: last byte is 0xF1 (-15).
+	 *  Everything before the marker is the encrypted string data. */
+	if (!src || src[srcLen - 1] == -15)
 	{
-		// 已加密数据
 		return -1;
 	}
-	if (!p_dst)
+	if (!dstData)
 	{
 		return -2;
 	}
-	if (srcLeng - 1 > dstLeng)
+	if (srcLen - 1 > dstLen)
 	{
 		return -3;
 	}
 
-	if (p_src != p_dst)
-		memcpy(p_dst, p_src, srcLeng);
+	if (srcData != dstData)
+		memcpy(dstData, srcData, srcLen);
 
 	uint16_t a, b;
-	GetFactors(srcLeng, &a, &b);
+	GetFactors(srcLen, &a, &b);
 
-	char *cur = (char *)p_dst + 2, *end = (char *)p_dst + srcLeng;
+	char *cur = (char *)dstData + 2, *end = (char *)dstData + srcLen;
 		
 	while (cur < end)
 	{
@@ -85,25 +85,25 @@ int ShuffleString::Encrypt(void *p_src, int srcLeng, void *p_dst, int dstLeng)
 		cur += 4;
 	}
 
-	cur = (char *)p_dst;
+	cur = (char *)dstData;
 	while (cur < end)
 	{
 		*((uint16_t *)cur) ^= a;
 		cur += 4;
 	}
 
-	if (srcLeng & 1)
+	if (srcLen & 1)
 	{
 		*(end - 1) ^= (uint8_t)(b & 0xFF);
 	}
 
-	// 混淆
-	Shuffle(p_dst, srcLeng);
+	/* Shuffle the data */
+	Shuffle(dstData, srcLen);
 
-	// 设置标志位
-	((char *)p_dst)[srcLeng] = -15;
+	/* Set the marker byte */
+	((char *)dstData)[srcLen] = -15;
 
-	return srcLeng + 1;
+	return srcLen + 1;
 }
 
 void ShuffleString::Shuffle(void *dst, int length)
@@ -111,7 +111,7 @@ void ShuffleString::Shuffle(void *dst, int length)
 	char *rcur = ((char *)dst + length - 1), *cur = (char *)dst;
 	while (cur < rcur)
 	{
-		// 首尾隔位交换
+		/* Swap head/tail pair */
 		char t = *rcur;
 		*rcur = *cur;
 		*cur = t;

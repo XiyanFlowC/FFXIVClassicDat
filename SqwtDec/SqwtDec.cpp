@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	std::string path(argv[1]);
 	SqwtFile file(xybase::string::to_wstring(path));
 	std::ofstream pen(path + std::string(".xml"));
-	pen.write((char *)file.FileContent.GetData(), file.FileContent.GetLength());
+	pen.write((char *)file.m_fileContent.GetData(), file.m_fileContent.GetLength());
 	pen.close();
 }
 

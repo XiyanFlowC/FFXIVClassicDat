@@ -10,14 +10,14 @@ SsdData::SsdData()
 {
 }
 
-SsdData::SsdData(uint32_t p_fileId, const std::u8string &p_language)
-	: m_fileId(p_fileId), m_language(p_language)
+SsdData::SsdData(uint32_t fileId, const std::u8string &language)
+	: m_fileId(fileId), m_language(language)
 {
 	ParseRaptureSsdData(m_fileId);
 }
 
-SsdData::SsdData(const std::wstring &path, const std::u8string &p_language)
-	: m_fileId(-1), m_language(p_language)
+SsdData::SsdData(const std::wstring &path, const std::u8string &language)
+	: m_fileId(-1), m_language(language)
 {
 	ParseRaptureSsdData(path);
 }
@@ -75,12 +75,12 @@ void SsdData::ParseRaptureSsdData(uint32_t id)
 {
 	auto data = DataManager::GetInstance().LoadData(id);
 
-	// ShuffleString
+	/* ShuffleString decryption */
 	ShuffleString ss;
 	int length = ss.Decrypt(data.GetData(), data.GetLength(), data.GetData(), data.GetLength());
 	if (length < 0) length = data.GetLength();
 
-	// utf-8 BOM check
+	/* UTF-8 BOM check */
 	if (!memcmp(data.GetData(), "\xEF\xBB\xBF", 3))
 	{
 		ParseRaptureSsdData((char8_t *)data.GetData() + 3, length - 3);
@@ -100,14 +100,14 @@ void SsdData::ParseRaptureSsdData(std::wstring path)
 	eye.ReadBytes((char *)data.GetData(), data.GetLength());
 	eye.Close();
 
-	// ShuffleString
+	/* ShuffleString decryption */
 	ShuffleString ss;
 	int length = ss.Decrypt(data.GetData(), data.GetLength(), data.GetData(), data.GetLength());
 	if (length < 0) length = data.GetLength();
 
 	try
 	{
-		// utf-8 BOM check
+		/* UTF-8 BOM check */
 		if (!memcmp(data.GetData(), "\xEF\xBB\xBF", 3))
 		{
 			ParseRaptureSsdData((char8_t *)data.GetData() + 3, length - 3);
@@ -132,7 +132,7 @@ void SsdData::ParseRaptureSsdData(std::wstring path)
 // 虽然這個函數分配紿Sheet可以讓結構更清晰, 但是考慮到Sheet的职能不宜超过索引數据
 // 且在SSD中明確表示了Sheet之定義爲SSD文件之一部分. 故而, 將Sheet之Xml定義解析置
 // 於此処.
-void ParseSheetTag(Sheet *target, const xybase::xml::XmlNode &node)
+void ParseSheetTag_(Sheet *target, const xybase::xml::XmlNode &node)
 {
 	for (auto child : node.GetChildren())
 	{
@@ -193,16 +193,16 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 		{
 			std::u8string name = xybase::string::to_utf8(child.GetAttribute(u"name"));
 			std::u16string infoFile = child.GetAttribute(u"infofile");
-			// 引用其他的文件
+			/* Reference to another file */
 			if (infoFile != u"")
 			{
 				if (m_recursive)
-					ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
-				continue;
-			}
+							ParseRaptureSsdData(xybase::string::stoi<char16_t>(infoFile));
+						continue;
+					}
 
-			// 非引用，解析数据
-			std::u8string mode = xybase::string::to_utf8(child.GetAttribute(u"mode"));
+					/* Direct definition, parse data */
+					std::u8string mode = xybase::string::to_utf8(child.GetAttribute(u"mode"));
 			int columnMax = xybase::string::pint<char16_t>(child.GetAttribute(u"column_max"));
 			int columnCount = xybase::string::pint<char16_t>(child.GetAttribute(u"column_count"));
 			int cache = xybase::string::pint<char16_t>(child.GetAttribute(u"cache"));
@@ -210,16 +210,15 @@ void SsdData::ParseRaptureSsdData(const char8_t *xml, int length)
 			std::u8string lang = xybase::string::to_utf8(child.GetAttribute(u"lang"));
 			std::u8string param = xybase::string::to_utf8(child.GetAttribute(u"param"));
 
-			// 该表是当前指定的语言的表
+			/* This sheet matches the specified language */
 			if (lang == m_language || lang == u8"")
 			{
 				Sheet *sheet = new Sheet(name, columnMax, columnCount, cache, type, lang, param);
-				ParseSheetTag(sheet, child);
+				ParseSheetTag_(sheet, child);
 				
 				assert(!m_sheets.contains(name));
 				m_sheets[name] = sheet;
 			}
-			// 否则，忽略此记录
 		}
 		else
 			throw xybase::InvalidParameterException(L"xml", L"Unsupported ssd definition.", 458001);

@@ -19,12 +19,12 @@ Sheet::Sheet(const std::u8string &name, int columnMax, int columnCount, int cach
 	m_indices = new int[m_columnCount];
 }
 
-Sheet::Sheet(Sheet &&p_movee) noexcept
-	: m_name(p_movee.m_name), m_columnCount(p_movee.m_columnCount), m_columnMax(p_movee.m_columnMax), m_cache(p_movee.m_cache),
-	m_type(p_movee.m_type), m_lang(p_movee.m_lang), m_schema(std::move(p_movee.m_schema)), m_indices(p_movee.m_indices),
-	m_blocks(std::move(p_movee.m_blocks)), m_indicesCur(p_movee.m_indicesCur), m_param(std::move(p_movee.m_param))
+Sheet::Sheet(Sheet &&movee) noexcept
+	: m_name(movee.m_name), m_columnCount(movee.m_columnCount), m_columnMax(movee.m_columnMax), m_cache(movee.m_cache),
+	m_type(movee.m_type), m_lang(movee.m_lang), m_schema(std::move(movee.m_schema)), m_indices(movee.m_indices),
+	m_blocks(std::move(movee.m_blocks)), m_indicesCur(movee.m_indicesCur), m_param(std::move(movee.m_param))
 {
-	p_movee.m_indices = nullptr;
+	movee.m_indices = nullptr;
 }
 
 Sheet::~Sheet()
@@ -37,96 +37,96 @@ const std::u8string &Sheet::GetName() const
 	return m_name;
 }
 
-void Sheet::SaveToCsv(CsvFile &p_csv) const
+void Sheet::SaveToCsv(CsvFile &csv) const
 {
-	p_csv.NewCell(u8"type");
+	csv.NewCell(u8"type");
 	for (auto &&type : m_schema.GetSchemaDefinition())
 	{
-		p_csv.NewCell(Sheet::Schema::GetTypeName(type));
+		csv.NewCell(Sheet::Schema::GetTypeName(type));
 	}
-	p_csv.NewLine();
-	p_csv.NewCell(u8"idx");
+	csv.NewLine();
+	csv.NewCell(u8"idx");
 	for (int i = 0; i < m_columnCount; ++i)
 	{
-		p_csv.NewCell(xybase::string::itos<char8_t>(m_indices[i]));
+		csv.NewCell(xybase::string::itos<char8_t>(m_indices[i]));
 	}
-	p_csv.NewLine();
+	csv.NewLine();
 
 	GameStringUtil gs;
 	for (auto &pair : m_rows)
 	{
-		p_csv.NewCell(xybase::string::itos<char8_t>(pair.first));
+		csv.NewCell(xybase::string::itos<char8_t>(pair.first));
 		for (auto &&cell : pair.second.GetRawRef())
 		{
 			if (cell.GetType() == SDT_INVALID) break;
 			if (cell.GetType() == SDT_STR)
-				p_csv.NewCell(gs.Decode(cell.ToString()));
+				csv.NewCell(gs.Decode(cell.ToString()));
 			else
-				p_csv.NewCell((char8_t *)cell.ToString().c_str());
+				csv.NewCell((char8_t *)cell.ToString().c_str());
 		}
-		p_csv.NewLine();
+		csv.NewLine();
 	}
 }
 
-void Sheet::LoadFromCsv(CsvFile &p_csv)
+void Sheet::LoadFromCsv(CsvFile &csv)
 {
-	if (p_csv.NextCell() != u8"type") throw xybase::InvalidParameterException(L"p_csv", L"Invalid csv.", 54801);
+	if (csv.NextCell() != u8"type") throw xybase::InvalidParameterException(L"csv", L"Invalid csv.", 54801);
 	// 验证数据约定
 	if (m_cfgInputVerifySchema)
 		for (auto &&type : m_schema.GetSchemaDefinition())
 		{
-			if (p_csv.NextCell() != Sheet::Schema::GetTypeName(type)) throw xybase::InvalidParameterException(L"p_csv", L"Schema mismatch!", 54802);
+			if (csv.NextCell() != Sheet::Schema::GetTypeName(type)) throw xybase::InvalidParameterException(L"csv", L"Schema mismatch!", 54802);
 		}
-	p_csv.NextLine();
-	if (p_csv.NextCell() != u8"idx") throw xybase::InvalidParameterException(L"p_csv", L"Invalid csv.", 54803);
+	csv.NextLine();
+	if (csv.NextCell() != u8"idx") throw xybase::InvalidParameterException(L"csv", L"Invalid csv.", 54803);
 	// 验证索引
 	if (m_cfgInputVerifyIndex)
 		for (int i = 0; i < m_columnCount; ++i)
 		{
-			if (p_csv.NextCell() != xybase::string::itos<char8_t>(m_indices[i])) throw xybase::InvalidParameterException(L"p_csv", L"Index mismatch!", 54804);;
+			if (csv.NextCell() != xybase::string::itos<char8_t>(m_indices[i])) throw xybase::InvalidParameterException(L"csv", L"Index mismatch!", 54804);;
 		}
-	p_csv.NextLine();
+	csv.NextLine();
 
 	GameStringUtil gsu;
-	while (!p_csv.IsEof())
+	while (!csv.IsEof())
 	{
 		Row row(m_columnCount, m_indices);
-		int rowId = xybase::string::stoi<char8_t>(p_csv.NextCell());
+		int rowId = xybase::string::stoi<char8_t>(csv.NextCell());
 		for (DataType type : m_schema.GetSchemaDefinition())
 		{
-			if (p_csv.IsEol()) break;
+			if (csv.IsEol()) break;
 			Cell cell(type);
 			if (type & SDT_FLAG_INTEGER)
 			{
 				if (type & SDT_FLAG_SIGNED)
-					cell.Set<int>(xybase::string::pint<char8_t>(p_csv.NextCell()));
+					cell.Set<int>(xybase::string::pint<char8_t>(csv.NextCell()));
 				else
-					cell.Set<unsigned int>(xybase::string::pint<char8_t>(p_csv.NextCell()));
+					cell.Set<unsigned int>(xybase::string::pint<char8_t>(csv.NextCell()));
 			}
 			else if (type & SDT_FLAG_FLOAT)
 			{
-				cell.Set<float>(xybase::string::pflt(p_csv.NextCell()));
+				cell.Set<float>(xybase::string::pflt(csv.NextCell()));
 			}
 			else if (type & SDT_FLAG_BOOL)
 			{
-				auto str = xybase::string::to_lower(p_csv.NextCell());
+				auto str = xybase::string::to_lower(csv.NextCell());
 				if (str != u8"true" && str != u8"false")
-					throw xybase::InvalidParameterException(L"p_csv", 
+					throw xybase::InvalidParameterException(L"csv", 
 						std::format(L"Bool type parse failed. (For row {})", rowId), 54805);
 				cell.Set<bool>(str == u8"true");
 			}
 			else if (type & SDT_FLAG_STR)
 			{
-				cell.SetString(gsu.Encode(p_csv.NextCell().c_str()));
+				cell.SetString(gsu.Encode(csv.NextCell().c_str()));
 			}
-			else abort();
-			row.AppendCell(cell);
-		}
+				else abort();
+				row.AppendCell(cell);
+			}
 		// 為確保從CSV中取得的數據覆蓋舊有的的數據。
-		auto exists = m_rows.find(rowId);
+			auto exists = m_rows.find(rowId);
 		if (exists != m_rows.end()) m_rows.erase(exists);
 		m_rows.insert(std::make_pair(rowId, std::move(row)));
-		p_csv.NextLine();
+		csv.NextLine();
 	}
 }
 
@@ -157,7 +157,7 @@ void Sheet::LoadAll()
 		}
 		catch (DataManager::FileMissingException &ex)
 		{
-			// Rescue
+			/* Rescue: log and skip */
 			std::wcout << L"读取错误。" << ToString() << L"中的块" << block.begin << "[" << block.count << L"]无法完成读取。";
 			std::wcout << std::format(L"文件缺失：{:08X}", ex.GetFileId());
 			std::wcout << L"此错误将被忽略。\n";
@@ -166,19 +166,19 @@ void Sheet::LoadAll()
 }
 
 
-void Sheet::Schema::Append(const std::u8string &p_type)
+void Sheet::Schema::Append(const std::u8string &type)
 {
-	if (p_type == u8"s8") m_schema.push_back(SDT_S8);
-	else if (p_type == u8"u8") m_schema.push_back(SDT_U8);
-	else if (p_type == u8"s16") m_schema.push_back(SDT_S16);
-	else if (p_type == u8"u16") m_schema.push_back(SDT_U16);
-	else if (p_type == u8"s32") m_schema.push_back(SDT_S32);
-	else if (p_type == u8"u32") m_schema.push_back(SDT_U32);
-	else if (p_type == u8"f16") m_schema.push_back(SDT_F16);
-	else if (p_type == u8"float") m_schema.push_back(SDT_F32);
-	else if (p_type == u8"bool") m_schema.push_back(SDT_BOOL);
-	else if (p_type == u8"str") m_schema.push_back(SDT_STR);
-	else throw xybase::InvalidParameterException(L"p_type", std::format(L"Unknown data type :{}", xybase::string::to_wstring(p_type)), 405390);
+	if (type == u8"s8") m_schema.push_back(SDT_S8);
+	else if (type == u8"u8") m_schema.push_back(SDT_U8);
+	else if (type == u8"s16") m_schema.push_back(SDT_S16);
+	else if (type == u8"u16") m_schema.push_back(SDT_U16);
+	else if (type == u8"s32") m_schema.push_back(SDT_S32);
+	else if (type == u8"u32") m_schema.push_back(SDT_U32);
+	else if (type == u8"f16") m_schema.push_back(SDT_F16);
+	else if (type == u8"float") m_schema.push_back(SDT_F32);
+	else if (type == u8"bool") m_schema.push_back(SDT_BOOL);
+	else if (type == u8"str") m_schema.push_back(SDT_STR);
+	else throw xybase::InvalidParameterException(L"type", std::format(L"Unknown data type :{}", xybase::string::to_wstring(type)), 405390);
 }
 
 void Sheet::Schema::Clear()
@@ -191,16 +191,15 @@ const std::list<Sheet::DataType> &Sheet::Schema::GetSchemaDefinition() const
 	return m_schema;
 }
 
-void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size_t limit)
+void Sheet::Schema::ReadRow(Row &row, xybase::BinaryStream &dataStream, size_t limit)
 {
 	for (DataType type : m_schema)
 	{
 		Cell cell(type);
 
-		if (p_dataStream.Tell() == limit)
+		if (dataStream.Tell() == limit)
 		{
-			// TODO: 检查是否需要保持默认值
-			// p_row.AppendCell(cell);
+			/* TODO: Check whether to keep default value */
 			continue;
 		}
 
@@ -209,23 +208,23 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size
 			if (type & SDT_FLAG_8BIT)
 			{
 				if (type & SDT_FLAG_SIGNED)
-					cell.Set<int>(p_dataStream.ReadInt8());
+					cell.Set<int>(dataStream.ReadInt8());
 				else
-					cell.Set<unsigned int>(p_dataStream.ReadUInt8());
+					cell.Set<unsigned int>(dataStream.ReadUInt8());
 			}
 			else if (type & SDT_FLAG_16BIT)
 			{
 				if (type & SDT_FLAG_SIGNED)
-					cell.Set<int>(p_dataStream.ReadInt16());
+					cell.Set<int>(dataStream.ReadInt16());
 				else
-					cell.Set<unsigned int>(p_dataStream.ReadUInt16());
+					cell.Set<unsigned int>(dataStream.ReadUInt16());
 			}
 			else if (type & SDT_FLAG_32BIT)
 			{
 				if (type & SDT_FLAG_SIGNED)
-					cell.Set<int>(p_dataStream.ReadInt32());
+					cell.Set<int>(dataStream.ReadInt32());
 				else
-					cell.Set<unsigned int>(p_dataStream.ReadUInt32());
+					cell.Set<unsigned int>(dataStream.ReadUInt32());
 			}
 			else abort();
 		}
@@ -233,7 +232,7 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size
 		{
 			if (type & SDT_FLAG_16BIT)
 			{
-				uint16_t val = p_dataStream.ReadUInt16();
+				uint16_t val = dataStream.ReadUInt16();
 				int sign = val & 0x8000;
 				int rest = val & ~0x8000;
 
@@ -241,18 +240,18 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size
 				cell.Set<float>(*reinterpret_cast<float *>(&result));
 			}
 			else
-				cell.Set<float>(p_dataStream.ReadFloat());
+				cell.Set<float>(dataStream.ReadFloat());
 		}
 		else if (type & SDT_FLAG_BOOL)
 		{
-			cell.Set<bool>(p_dataStream.ReadUInt8());
+			cell.Set<bool>(dataStream.ReadUInt8());
 		}
 		else if (type & SDT_FLAG_STR)
 		{
-			int length = p_dataStream.ReadUInt16();
+			int length = dataStream.ReadUInt16();
 			char *str = new char[length];
 
-			p_dataStream.ReadBytes(str, length);
+			dataStream.ReadBytes(str, length);
 
 			SimpleString ss;
 			int actualLength = ss.Decrypt(str, length, str, length);
@@ -263,14 +262,14 @@ void Sheet::Schema::ReadRow(Row &p_row, xybase::BinaryStream &p_dataStream, size
 		}
 		else abort();
 
-		p_row.AppendCell(cell);
+		row.AppendCell(cell);
 	}
 }
 
-void Sheet::Schema::WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStream, xybase::BinaryStream &p_offsetStream)
+void Sheet::Schema::WriteRow(const Row &row, xybase::BinaryStream &dataStream, xybase::BinaryStream &offsetStream)
 {
 	auto formalTypeItr = m_schema.begin();
-	for (const Cell &cell : p_row.GetRawRef())
+	for (const Cell &cell : row.GetRawRef())
 	{
 		DataType formalType = *formalTypeItr++;
 
@@ -279,30 +278,30 @@ void Sheet::Schema::WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStrea
 			break;
 		}
 		if ((formalType & SDT_MASK_TYPE) != (cell.GetType() & SDT_MASK_TYPE))
-			throw xybase::InvalidParameterException(L"p_row", L"Row data violates schema!", 99010);
+			throw xybase::InvalidParameterException(L"row", L"Row data violates schema!", 99010);
 
 		if (formalType & SDT_FLAG_INTEGER)
 		{
 			if (formalType & SDT_FLAG_8BIT)
 			{
 				if (formalType & SDT_FLAG_SIGNED)
-					p_dataStream.Write((int8_t) cell.Get<int>());
+					dataStream.Write((int8_t) cell.Get<int>());
 				else
-					p_dataStream.Write((uint8_t)cell.Get<unsigned int>());
+					dataStream.Write((uint8_t)cell.Get<unsigned int>());
 			}
 			else if (formalType & SDT_FLAG_16BIT)
 			{
 				if (formalType & SDT_FLAG_SIGNED)
-					p_dataStream.Write((int16_t)cell.Get<int>());
+					dataStream.Write((int16_t)cell.Get<int>());
 				else
-					p_dataStream.Write((uint16_t)cell.Get<unsigned int>());
+					dataStream.Write((uint16_t)cell.Get<unsigned int>());
 			}
 			else if (formalType & SDT_FLAG_32BIT)
 			{
 				if (formalType & SDT_FLAG_SIGNED)
-					p_dataStream.Write((int32_t)cell.Get<int>());
+					dataStream.Write((int32_t)cell.Get<int>());
 				else
-					p_dataStream.Write((uint32_t)cell.Get<unsigned int>());
+					dataStream.Write((uint32_t)cell.Get<unsigned int>());
 			}
 			else abort();
 		}
@@ -318,41 +317,41 @@ void Sheet::Schema::WriteRow(const Row &p_row, xybase::BinaryStream &p_dataStrea
 				rest -= 0x38000000;
 				rest >>= 13;
 				val = sign | rest;
-				p_dataStream.Write((uint16_t)val);
+				dataStream.Write((uint16_t)val);
 			}
 			else
-				p_dataStream.Write(cell.Get<float>());
+				dataStream.Write(cell.Get<float>());
 		}
 		else if (formalType & SDT_FLAG_BOOL)
 		{
-			p_dataStream.Write((uint8_t) cell.Get<bool>());
+			dataStream.Write((uint8_t) cell.Get<bool>());
 		}
 		else if (formalType & SDT_FLAG_STR)
 		{
 			auto str = cell.Get<std::string>();
 			int length = str.length() + 1;
-			p_dataStream.Write((uint16_t)length);
-			p_dataStream.Write((char *)str.c_str(), length);
+			dataStream.Write((uint16_t)length);
+			dataStream.Write((char *)str.c_str(), length);
 		}
 		else abort();
 	}
-	p_offsetStream.Write((uint32_t)p_dataStream.Tell());
+	offsetStream.Write((uint32_t)dataStream.Tell());
 }
 
-std::u8string Sheet::Schema::GetTypeName(DataType p_type)
+std::u8string Sheet::Schema::GetTypeName(DataType type)
 {
-	if (p_type == SDT_U8) return u8"u8";
-	if (p_type == SDT_U16) return u8"u16";
-	if (p_type == SDT_U32) return u8"u32";
-	if (p_type == SDT_S8) return u8"s8";
-	if (p_type == SDT_S16) return u8"s16";
-	if (p_type == SDT_S32) return u8"s32";
-	if (p_type == SDT_F16) return u8"f16";
-	if (p_type == SDT_F32) return u8"float";
-	if (p_type == SDT_STR) return u8"str";
-	if (p_type == SDT_BOOL) return u8"bool";
+	if (type == SDT_U8) return u8"u8";
+	if (type == SDT_U16) return u8"u16";
+	if (type == SDT_U32) return u8"u32";
+	if (type == SDT_S8) return u8"s8";
+	if (type == SDT_S16) return u8"s16";
+	if (type == SDT_S32) return u8"s32";
+	if (type == SDT_F16) return u8"f16";
+	if (type == SDT_F32) return u8"float";
+	if (type == SDT_STR) return u8"str";
+	if (type == SDT_BOOL) return u8"bool";
 
-	throw xybase::InvalidParameterException(L"p_type", L"Invalid DataType!", 59010);
+	throw xybase::InvalidParameterException(L"type", L"Invalid DataType!", 59010);
 }
 
 Sheet::Cell::Cell()
@@ -361,27 +360,27 @@ Sheet::Cell::Cell()
 	m_plainValue.u_val = 0;
 }
 
-Sheet::Cell::Cell(DataType p_type)
-	: m_type(p_type)
+Sheet::Cell::Cell(DataType type)
+	: m_type(type)
 {
 	m_plainValue.u_val = 0;
 }
 
-Sheet::Cell::Cell(const Cell &p_pat)
-	: m_type(p_pat.m_type), m_str(p_pat.m_str), m_plainValue(p_pat.m_plainValue)
+Sheet::Cell::Cell(const Cell &other)
+	: m_type(other.m_type), m_str(other.m_str), m_plainValue(other.m_plainValue)
 {
 }
 
-Sheet::Cell::Cell(Cell &&p_movee) noexcept
-	: m_str(std::move(p_movee.m_str)), m_plainValue(p_movee.m_plainValue), m_type(p_movee.m_type)
+Sheet::Cell::Cell(Cell &&movee) noexcept
+	: m_str(std::move(movee.m_str)), m_plainValue(movee.m_plainValue), m_type(movee.m_type)
 {
 }
 
-const Sheet::Cell &Sheet::Cell::operator=(const Cell &p_rval)
+const Sheet::Cell &Sheet::Cell::operator=(const Cell &other)
 {
-	m_str = p_rval.m_str;
-	m_type = p_rval.m_type;
-	m_plainValue = p_rval.m_plainValue;
+	m_str = other.m_str;
+	m_type = other.m_type;
+	m_plainValue = other.m_plainValue;
 	return *this;
 }
 
@@ -422,13 +421,13 @@ Sheet::DataType Sheet::Cell::GetType() const
 	return m_type;
 }
 
-Sheet::Row::Row(int columnCount, int *pe_indices)
-	: m_cells(columnCount), me_indices(pe_indices), m_cellCount(columnCount)
+Sheet::Row::Row(int columnCount, int *indices)
+	: m_cells(columnCount), m_indices(indices), m_cellCount(columnCount)
 {
 }
 
-Sheet::Row::Row(Row &&p_movee) noexcept
-	: m_cells(std::move(p_movee.m_cells)), me_indices(p_movee.me_indices), m_cellCount(p_movee.m_cellCount)
+Sheet::Row::Row(Row &&movee) noexcept
+	: m_cells(std::move(movee.m_cells)), m_indices(movee.m_indices), m_cellCount(movee.m_cellCount)
 {
 }
 
@@ -441,7 +440,7 @@ Sheet::Cell &Sheet::Row::GetCell(int col)
 {
 	for (int i = 0; i < m_cellCur; ++i)
 	{
-		if (col == me_indices[i])
+		if (col == m_indices[i])
 		{
 			return m_cells[i];
 		}
@@ -494,13 +493,13 @@ void Sheet::SaveAll()
 	}
 }
 
-void Sheet::EnableToCsv(CsvFile &p_csv) const
+void Sheet::EnableToCsv(CsvFile &csv) const
 {
 	for (auto &&block : m_blocks)
 	{
-		p_csv.NewCell(u8"[block]");
-		p_csv.NewCell(xybase::string::itos<char8_t>(block.begin));
-		p_csv.NewLine();
+		csv.NewCell(u8"[block]");
+		csv.NewCell(xybase::string::itos<char8_t>(block.begin));
+		csv.NewLine();
 		
 		try
 		{
@@ -512,9 +511,9 @@ void Sheet::EnableToCsv(CsvFile &p_csv) const
 
 			for (int i = 0; i < count; ++i)
 			{
-				p_csv.NewCell(xybase::string::itos<char8_t>(enable[i].index));
-				p_csv.NewCell(xybase::string::itos<char8_t>(enable[i].count));
-				p_csv.NewLine();
+				csv.NewCell(xybase::string::itos<char8_t>(enable[i].index));
+				csv.NewCell(xybase::string::itos<char8_t>(enable[i].count));
+				csv.NewLine();
 			}
 		}
 		catch (DataManager::FileMissingException &ex)
@@ -525,17 +524,17 @@ void Sheet::EnableToCsv(CsvFile &p_csv) const
 	}
 }
 
-void Sheet::EnableFromCsv(CsvFile &p_csv)
+void Sheet::EnableFromCsv(CsvFile &csv)
 {
 	xybase::BinaryStream *enableStream = nullptr;
-	while (!p_csv.IsEof())
+	while (!csv.IsEof())
 	{
-		std::u8string first = p_csv.NextCell();
+		std::u8string first = csv.NextCell();
 		if (first == u8"[block]")
 		{
 			if (enableStream) delete enableStream;
 			enableStream = nullptr;
-			int begin = xybase::string::stoi<char8_t>(p_csv.NextCell());
+			int begin = xybase::string::stoi<char8_t>(csv.NextCell());
 			for (const BlockInfo &info : m_blocks)
 			{
 				if (info.begin == begin)
@@ -544,13 +543,13 @@ void Sheet::EnableFromCsv(CsvFile &p_csv)
 				}
 			}
 			if (enableStream == nullptr)
-				throw xybase::InvalidParameterException(L"p_csv", L"Not an enable file for this sheet!", 53648);
-			p_csv.NextLine();
+				throw xybase::InvalidParameterException(L"csv", L"Not an enable file for this sheet!", 53648);
+			csv.NextLine();
 			continue;
 		}
 		
 		uint32_t begin = xybase::string::stoi<char8_t>(first);
-		uint32_t count = xybase::string::stoi<char8_t>(p_csv.NextCell());
+		uint32_t count = xybase::string::stoi<char8_t>(csv.NextCell());
 		enableStream->Write(begin);
 		enableStream->Write(count);
 	}
@@ -565,7 +564,6 @@ Sheet::Cell &Sheet::GetCell(int row, int col)
 Sheet::Row &Sheet::GetRow(int row)
 {
 	auto target = m_rows.find(row);
-	// Cache Miss!
 	if (target == m_rows.end())
 	{
 		LoadRow(row);
@@ -602,19 +600,17 @@ std::wstring Sheet::ToString() const
 	return wss.str();
 }
 
-inline uint32_t GetBeginingOffset(uint32_t *offset, int idx, size_t length)
+inline uint32_t getBeginningOffset_(uint32_t *offset, int idx, size_t length)
 {
 	if (idx >= length) throw xybase::InvalidParameterException(L"idx", L"Index out of range!", 58010);
 	return idx == 0 ? 0 : offset[idx - 1];
-	// return offset[idx];
 }
 
-void Sheet::LoadBlock(const BlockInfo &p_block)
+void Sheet::LoadBlock(const BlockInfo &block)
 {
-	BinaryData offset = DataManager::GetInstance().LoadData(p_block.offset);
-	BinaryData enable = DataManager::GetInstance().LoadData(p_block.enable);
-	// BinaryData data = DataManager::GetInstance().LoadData(p_block.data);
-	xybase::BinaryStream *data = DataManager::GetInstance().NewDataStream(p_block.data, L"rb");
+	BinaryData offset = DataManager::GetInstance().LoadData(block.offset);
+	BinaryData enable = DataManager::GetInstance().LoadData(block.enable);
+	xybase::BinaryStream *data = DataManager::GetInstance().NewDataStream(block.data, L"rb");
 	
 	assert(!(offset.GetLength() & 0x3));
 	assert(!(enable.GetLength() & 0x7));
@@ -623,19 +619,17 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 	int enableEntriesCount = enable.GetLength() / 8;
 	uint32_t *offsets = (uint32_t *)offset.GetData();
 	int offsetCount = offset.GetLength() / 4;
-	// assert(p_block.count == offsetCount);
 
 	if (m_cfgIgnoreEnableIndication)
 	{
-		for (int i = 0; i < p_block.count; ++i)
+		for (int i = 0; i < block.count; ++i)
 		{
 			if (i >= offsetCount) break;
-			assert(GetBeginingOffset(offsets, i, offsetCount) == data->Tell());
-			//data->Seek(GetBeginingOffset(offsets, i, offsetCount));
+			assert(getBeginningOffset_(offsets, i, offsetCount) == data->Tell());
 			if (offsets[i] == data->Tell()) continue;
 			Sheet::Row row(m_columnCount, m_indices);
 			m_schema.ReadRow(row, *data, offsets[i]);
-			m_rows.insert(std::make_pair(p_block.begin + i, std::move(row)));
+			m_rows.insert(std::make_pair(block.begin + i, std::move(row)));
 			assert(data->Tell() == offsets[i]);
 		}
 	}
@@ -647,22 +641,22 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 			{
 				int idx = enableEntries[i].idx + j;
 				
-				if (idx - p_block.begin >= offsetCount) break;
-				data->Seek(GetBeginingOffset(offsets, idx - p_block.begin, offsetCount));
+				if (idx - block.begin >= offsetCount) break;
+				data->Seek(getBeginningOffset_(offsets, idx - block.begin, offsetCount));
 				Sheet::Row row(m_columnCount, m_indices);
 				try
 				{
-					m_schema.ReadRow(row, *data, offsets[idx - p_block.begin]);
+					m_schema.ReadRow(row, *data, offsets[idx - block.begin]);
 				}
 				catch (xybase::IOException &ex)
 				{
 					throw xybase::RuntimeException(
 						std::format(
 							L"Ill-formed sheet row! data={:08X}, enable={:08X}, offset={:08X}, row={}",
-							p_block.data, p_block.enable, p_block.offset, idx), 717010);
+							block.data, block.enable, block.offset, idx), 717010);
 				}
 				m_rows.insert(std::make_pair(idx, std::move(row)));
-				assert(data->Tell() == offsets[idx - p_block.begin]);
+				assert(data->Tell() == offsets[idx - block.begin]);
 			}
 		}
 	}
@@ -670,28 +664,20 @@ void Sheet::LoadBlock(const BlockInfo &p_block)
 	delete data;
 }
 
-void Sheet::SaveBlock(const BlockInfo &p_block)
+void Sheet::SaveBlock(const BlockInfo &block)
 {
-	xybase::BinaryStream *offsetStream = DataManager::GetInstance().NewDataStream(p_block.offset, L"wb");
-	xybase::BinaryStream *dataStream = DataManager::GetInstance().NewDataStream(p_block.data, L"wb");
+	xybase::BinaryStream *offsetStream = DataManager::GetInstance().NewDataStream(block.offset, L"wb");
+	xybase::BinaryStream *dataStream = DataManager::GetInstance().NewDataStream(block.data, L"wb");
 
 	xybase::BinaryStream *enableStream = nullptr;
-	// 若已有enable则不要干涉
-	// 总之重新生成
-	// if (!std::filesystem::exists(DataManager::GetInstance().BuildDataPath(p_block.enable)))
-		enableStream = DataManager::GetInstance().NewDataStream(p_block.enable, L"wb");
+	/* Regenerate enable stream */
+	enableStream = DataManager::GetInstance().NewDataStream(block.enable, L"wb");
 
-	// 不需要获取Enable，没有载入的部分自动跳过
-	/*BinaryData enable = DataManager::GetInstance().LoadData(p_block.enable);
-	assert(!(enable.GetLength() & 0x7));
-	struct EnableEntry { uint32_t idx; uint32_t cnt; } *enableEntries = (EnableEntry *)enable.GetData();
-	int enableEntriesCount = enable.GetLength() / 8;*/
-
-	uint32_t continousCounter = 0, begin = p_block.begin;
-	int max = p_block.count;
+	uint32_t continousCounter = 0, begin = block.begin;
+	int max = block.count;
 	for (; max > 0; --max)
 	{
-		if (m_rows.find(p_block.begin + max) != m_rows.end())
+		if (m_rows.find(block.begin + max) != m_rows.end())
 		{
 			++max;
 			break;
@@ -700,7 +686,7 @@ void Sheet::SaveBlock(const BlockInfo &p_block)
 
 	for (int i = 0; i < max; ++i)
 	{
-		auto rowItr = m_rows.find(p_block.begin + i);
+		auto rowItr = m_rows.find(block.begin + i);
 		if (rowItr == m_rows.end())
 		{
 			offsetStream->Write((uint32_t)dataStream->Tell());
@@ -710,7 +696,7 @@ void Sheet::SaveBlock(const BlockInfo &p_block)
 				enableStream->Write(begin);
 				enableStream->Write(continousCounter);
 			}
-			begin = p_block.begin + i + 1;
+			begin = block.begin + i + 1;
 			continousCounter = 0;
 			continue;
 		}
