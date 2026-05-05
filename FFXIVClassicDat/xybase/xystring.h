@@ -9,7 +9,6 @@
 
 #include <string>
 #include <stack>
-#include <cctype>
 
 #include "StringBuilder.h"
 
@@ -46,6 +45,15 @@ namespace xybase
 		 * @return The codepoint of given character.
 		*/
 		long XY_API to_codepoint(const std::u8string &str);
+
+		/**
+		 * @brief 将给定字符串中指定偏移处的字符转换为 Unicode 码点。
+		 * @param str 要解析的 UTF-8 编码字符串。
+		 * @param offset 要解析的字符在字符串中的字节偏移量。
+		 * @param leng 引用参数，返回当前字符的字节长度。
+		 * @return 指定偏移处字符的 Unicode 码点。如果偏移无效，返回值未定义。
+		 */
+		long XY_API to_codepoint(const std::u8string &str, int offset, int &leng);
 
 		/**
 		 * @brief Get the codepoint for utf-16 (only process the first character).
@@ -252,24 +260,6 @@ namespace xybase
 		*/
 		void XY_API set_string_cvt(std::wstring(*p_mbcstowcs)(const std::string &), std::string(*p_wcstombcs)(const std::wstring &)) noexcept;
 
-		template <typename ChT>
-		std::basic_string<ChT> to_lower(const std::basic_string<ChT> &ori)
-		{
-			StringBuilder<ChT> sb;
-			for (auto &&ch : ori)
-			{
-				if (isupper(ch))
-				{
-					sb += tolower(ch);
-				}
-				else
-				{
-					sb += ch;
-				}
-			}
-			return sb.ToString();
-		}
-
 		/**
 		 * @brief Replace all substring in a string with given replacement.
 		 * @tparam ChT Type of char.
@@ -339,54 +329,6 @@ namespace xybase
 				else break;
 			}
 			return ret;
-		}
-
-		/**
-		 * @brief Parse integer
-		 * @tparam T 
-		 * @param str 
-		 * @param base 
-		 * @return 
-		 */
-		template<typename T = char>
-		long long pint(const std::basic_string<T> &str, int base = 10)
-		{
-			long long ret = str[0] == '-' ? -1 : 1;
-			return ret * stoi<T>(str[0] == '-' ? str.substr(1) : str);
-		}
-
-		template<typename T = char>
-		double pflt(const std::basic_string<T> &str, int base = 10)
-		{
-			double res = 0.0;
-			int isNeg = 0, flag = 0;
-			double fact = 0.1;
-			for (int ch : str) {
-				if (!isdigit(ch))
-				{
-					if (ch == '-')
-					{
-						isNeg ^= 1;
-						continue;
-					}
-					else if (ch == '.')
-					{
-						flag = 1;
-						continue;
-					}
-					else throw xybase::InvalidParameterException(L"value", L"not a valid real number.", 37701);
-				}
-
-				if (flag)
-				{
-					res = res + fact * (ch - '0');
-					fact *= 0.1;
-				}
-				else
-					res = res * 10 + ch - '0';
-			}
-
-			return isNeg ? -res : res;
 		}
 
 		template<typename T = char>

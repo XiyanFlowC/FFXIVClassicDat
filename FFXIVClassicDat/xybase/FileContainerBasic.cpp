@@ -4,11 +4,12 @@
 #include "xystring.h"
 #include "xyutils.h"
 
-xybase::FileContainerBasic::InnerStream::InnerStream(FileContainerBasic *host, unsigned long long fileHandle)
+xybase::FileContainerBasic::InnerStream::InnerStream(FileContainerBasic *host, unsigned long long fileHandle, bool p_isBigEndian)
 {
 	this->host = host;
 	this->fileHandle = fileHandle;
 	isOpen = true;
+	isBigEndian = p_isBigEndian;
 }
 
 xybase::FileContainerBasic::InnerStream::~InnerStream()
@@ -137,7 +138,7 @@ xybase::Stream *xybase::FileContainerBasic::Open(std::u16string name, FileOpenMo
 	if (fe->occupied) throw InvalidOperationException(L"File occupied.", 102299);
 
 	unsigned long long handle = currentHandle++;
-	auto ret = new InnerStream(this, handle);
+	auto ret = new InnerStream(this, handle, mode & FOM_BIG_ENDIAN);
 	OpenedFileInformation stub
 	{
 		.cursor = 0,
@@ -248,6 +249,16 @@ xybase::FileContainerBasic::FileEntry xybase::FileContainerBasic::GetMetadata(co
 	return *files[name];
 }
 
+xybase::Stream *xybase::FileContainerBasic::GetInfraStream() const
+{
+	return infraStream;
+}
+
+int xybase::FileContainerBasic::GetAlign() const
+{
+	return align;
+}
+
 void xybase::FileContainerBasic::Write(unsigned long long handle, const char *buffer, size_t limit)
 {
 	if (!openedFiles[handle].writable) throw xybase::InvalidOperationException(L"This inner stream cannot write.", 102501);
@@ -301,12 +312,7 @@ void xybase::FileContainerBasic::Seek(unsigned long long handle, long long offse
 	{
 	case xybase::Stream::SM_BEGIN:
 		if (offset < 0) throw InvalidParameterException(L"offset", L"Cannot seek to the negative position.", 102035);
-		if ((size_t)offset > target.capacity)
-			throw InvalidOperationException(
-				std::format(L"Target offset out of range. capacity={} offset={} file={}",
-					target.capacity,
-					offset,
-					xybase::string::to_wstring(target.baseEntry->path)), 102030);
+		if ((size_t)offset > target.capacity) throw InvalidOperationException(L"Target offset out of range.", 102030);
 		target.cursor = offset;
 		break;
 	case xybase::Stream::SM_CURRENT:
@@ -319,11 +325,7 @@ void xybase::FileContainerBasic::Seek(unsigned long long handle, long long offse
 
 		if (target.cursor + offset > target.capacity
 			|| target.cursor + offset < 0)
-			throw InvalidOperationException(
-				std::format(L"Target offset out of range. capacity={} offset={} file={}",
-					target.capacity,
-					offset,
-					xybase::string::to_wstring(target.baseEntry->path)), 102030);
+			throw InvalidOperationException(L"Target offset out of range.", 102030);
 		target.cursor += offset;
 		break;
 	case xybase::Stream::SM_END:
