@@ -71,6 +71,13 @@ public:
     const FdtFile::Metrics& GetMetrics() const { return m_metrics; }
 
     /**
+     * @brief 获取指定字符代码的字形索引（通过查找表）。
+     * @param p_charCode 字符代码 (Unicode code point)
+     * @return 字形索引，如果字符代码超出范围则返回 UINT32_MAX
+     */
+    uint32_t GetGlyphIndexForChar(uint32_t p_charCode) const;
+
+    /**
      * @brief 获取直接索引处的字形（基于 0，顺序）。
      * @note 实际游戏使用 heightTable + lookupTable 进行间接访问，
      *       而不是直接索引。这返回 GLYP 缓冲区中的顺序条目。

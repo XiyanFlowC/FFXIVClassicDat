@@ -2,22 +2,30 @@
 
 #include <windows.h>
 #undef ERROR
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
-class HexView
+class TextView
 {
 public:
-	HexView();
-	~HexView();
+	TextView();
+	~TextView();
 
 	bool Create(HWND parent, int x, int y, int w, int h);
 	HWND GetHwnd() const { return m_hwnd; }
 
-	void LoadData(const uint8_t* data, size_t size);
-	void ClearData();
-	const std::vector<uint8_t>& GetData() const { return m_data; }
+	void LoadText(const std::string& text);
+	void LoadText(const std::wstring& text);
+	void LoadBytes(const uint8_t* data, size_t size, bool forceUtf8 = false);
+	void Clear();
 
 	void Show();
 	void Hide();
@@ -35,14 +43,16 @@ private:
 	HWND m_hwnd = nullptr;
 	HWND m_parent = nullptr;
 	HFONT m_font = nullptr;
-	std::vector<uint8_t> m_data;
+
+	std::wstring m_text;
+	std::vector<int> m_lineOffsets;
 
 	int m_scrollPos = 0;
 	int m_linesPerPage = 1;
 	int m_totalLines = 0;
-	int m_charWidth = 0;
-	int m_charHeight = 0;
+	int m_charWidth = 1;
+	int m_charHeight = 16;
 
-	static const wchar_t* ClassName();
 	static bool s_registered;
+	static const wchar_t* ClassName();
 };
