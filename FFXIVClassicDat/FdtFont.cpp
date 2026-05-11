@@ -45,6 +45,32 @@ uint32_t FdtFont::GetGlyphCount() const
     return static_cast<uint32_t>(m_glyphs.size());
 }
 
+uint32_t FdtFont::GetGlyphIndexForChar(uint32_t charCode) const
+{
+    if (m_lookupTable.empty())
+    {
+        // No lookup table — fall back to direct character code as index
+        if (charCode < m_glyphs.size())
+            return charCode;
+        return UINT32_MAX;
+    }
+
+    const uint8_t* p = m_lookupTable.data();
+    size_t entrySize = 2; // Each lookup table entry is 2 bytes (uint16 LE)
+    size_t tableEntries = m_lookupTable.size() / entrySize;
+
+    if (charCode < tableEntries)
+    {
+        uint32_t glyphIndex = static_cast<uint32_t>(p[charCode * 2]) |
+                              (static_cast<uint32_t>(p[charCode * 2 + 1]) << 8);
+
+        if (glyphIndex < m_glyphs.size())
+            return glyphIndex;
+    }
+
+    return UINT32_MAX;
+}
+
 bool FdtFont::GetGlyphPixelRect(uint32_t index,
                                  uint32_t atlasWidth, uint32_t atlasHeight,
                                  int& outX, int& outY, int& outW, int& outH) const

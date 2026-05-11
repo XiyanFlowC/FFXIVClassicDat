@@ -339,7 +339,7 @@ std::vector<uint8_t> GTex::DecodeToARGB8888() const
 
     switch (type)
     {
-    case GTexFormatType::A8R8G8B8:
+    case GTexFormatType::A8R8G8B8: // SE do it in BE, so the real layout is BGRA8888
     {
         const uint8_t* src = GetSurfaceData(0, 0);
         if (!src) break;
@@ -360,10 +360,10 @@ std::vector<uint8_t> GTex::DecodeToARGB8888() const
         {
             uint16_t pixel = (static_cast<uint16_t>(src[i * 2]) << 8) |
                               static_cast<uint16_t>(src[i * 2 + 1]);
-            out[i * 4 + 0] = static_cast<uint8_t>(((pixel >> 8) & 0x0F) << 4);  // R
-            out[i * 4 + 1] = static_cast<uint8_t>(((pixel >> 4) & 0x0F) << 4);  // G
-            out[i * 4 + 2] = static_cast<uint8_t>(((pixel >> 0) & 0x0F) << 4);  // B
-            out[i * 4 + 3] = static_cast<uint8_t>(((pixel >> 12) & 0x0F) << 4); // A
+            out[i * 4 + 0] = static_cast<uint8_t>(((pixel >> 12) & 0xF) * 17);  // R
+            out[i * 4 + 1] = static_cast<uint8_t>(((pixel >> 0) & 0xF) * 17);   // G
+            out[i * 4 + 2] = static_cast<uint8_t>(((pixel >> 4) & 0xF) * 17);   // B
+            out[i * 4 + 3] = static_cast<uint8_t>(((pixel >> 8) & 0xF) * 17);   // A
         }
         break;
     }
